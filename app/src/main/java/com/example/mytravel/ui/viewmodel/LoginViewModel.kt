@@ -1,10 +1,9 @@
-package com.example.mytravel.ui.login
+package com.example.mytravel.ui.viewmodel
 
-import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-
+import androidx.lifecycle.ViewModel
 
 class LoginViewModel : ViewModel() {
     var email by mutableStateOf("")

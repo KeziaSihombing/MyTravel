@@ -1,4 +1,4 @@
-package com.example.mytravel.ui.profile
+package com.example.mytravel.ui.pages
 
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.background
@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mytravel.data.model.UserProfile
+import com.example.mytravel.ui.viewmodel.ProfileViewModel
 
 @Composable
 fun ProfileScreen(

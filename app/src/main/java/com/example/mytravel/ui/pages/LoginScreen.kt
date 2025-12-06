@@ -1,4 +1,4 @@
-package com.example.mytravel.ui.login
+package com.example.mytravel.ui.pages
 
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.*
@@ -13,7 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.mytravel.ui.login.LoginViewModel
+import com.example.mytravel.ui.viewmodel.LoginViewModel
 
 
 @Composable
