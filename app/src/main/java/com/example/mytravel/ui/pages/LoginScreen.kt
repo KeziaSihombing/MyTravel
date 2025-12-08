@@ -36,16 +36,6 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    val context = LocalContext.current
-
-    // Side-effect: navigasi saat login sukses
-        LaunchedEffect(state) {
-            if (state is UiResult.Success) {
-                onNavigateProfile()
-            } else if (state is UiResult.Error) {
-                Toast.makeText(context, (state as UiResult.Error).message, Toast.LENGTH_SHORT).show()
-            }
-        }
 
     Column(
         modifier = Modifier

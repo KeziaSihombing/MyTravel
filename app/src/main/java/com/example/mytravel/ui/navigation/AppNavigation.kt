@@ -32,12 +32,11 @@ fun AppNavigation(
                 }
             }
         }
-        // Jika state berubah menjadi "login berhasil"...
         else {
             // ...paksa navigasi ke Home
             Log.d("AppNavigation", "DEBUG: User authenticated → Home")
-            navController.navigate(AppRoute.Login.route) {
-                popUpTo(AppRoute.Login.route) { inclusive = true }
+            navController.navigate(AppRoute.Profile.route) {
+                popUpTo(navController.graph.id) { inclusive = true }
             }
         }
     }
@@ -62,7 +61,10 @@ fun AppNavigation(
 
         composable(AppRoute.Register.route) {
             RegisterScreen(
-                viewModel = authViewModel
+                viewModel = authViewModel,
+                onNavigateLogin = {
+                    navController.navigate(AppRoute.Login.route)
+                }
             )
         }
 

@@ -16,35 +16,11 @@ import kotlinx.coroutines.flow.onEach
 class AuthRepository {
     private val auth: Auth get() = SupabaseHolder.client.auth
     private val postgrest get() = SupabaseHolder.client.postgrest
-    suspend fun register(email: String, password: String, name: String, description: String) {
+    suspend fun register(email: String, password: String) {
         auth.signUpWith(Email) {
             this.email = email
             this.password = password
         }
-    }
-
-    suspend fun createAkun(name: String, description: String) {
-        val session = waitForSession()
-            ?: throw Exception("Session belum ada. User mungkin belum login / email belum terverifikasi.")
-
-        val userId = session.user?.id
-
-        postgrest["akun"].insert(
-            mapOf(
-                "id" to userId,
-                "name" to name,
-                "description" to description
-            )
-        )
-    }
-
-    suspend fun waitForSession(): UserSession? {
-        repeat(20) { // max 20x (sekitar 2 detik)
-            val session = SupabaseHolder.session()
-            if (session != null) return session
-            delay(100)
-        }
-        return null
     }
 
     suspend fun login(email: String, password: String) {

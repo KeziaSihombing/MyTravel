@@ -31,8 +31,7 @@ class AuthViewModel(
         _authState.value = UiResult.Loading
         viewModelScope.launch {
             try {
-                repo.register(email, password, name, description)
-                repo.createAkun(name, description)
+                val user = repo.register(email, password)
                 _authState.value = UiResult.Success(true)
             } catch (e: Exception) {
                 _authState.value = UiResult.Error(e.message ?: "Register gagal")
