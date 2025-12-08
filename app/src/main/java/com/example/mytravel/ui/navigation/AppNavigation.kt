@@ -10,6 +10,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.mytravel.ui.pages.ListCommentsScreen
 import com.example.mytravel.ui.pages.LoginScreen
 import com.example.mytravel.ui.pages.RegisterScreen
 import com.example.mytravel.ui.pages.ProfileScreen
@@ -77,5 +78,14 @@ fun AppNavigation(
                 }
             )
         }
+
+        composable (AppRoute.ListComment.route){
+            ListCommentsScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
     }
 }
+

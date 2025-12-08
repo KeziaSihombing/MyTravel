@@ -23,4 +23,15 @@ class ProfileRepository {
         return ProfileMapper.map(profileDto)
     }
 
+    suspend fun fetchUserByID(id: String) : Profile? {
+        val response = postgrest["akun"].select {
+            filter {
+                eq("id", id)
+            }
+        }
+        Log.d("GET_PROFILE", "raw=" + (response.data ?: "null"))
+        val userDto = response.decodeList<ProfileDto>().firstOrNull()?: return null
+        return ProfileMapper.map(userDto)
+    }
+
 }

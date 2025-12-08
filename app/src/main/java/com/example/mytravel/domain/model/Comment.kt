@@ -25,3 +25,15 @@ data class Comment (
     val createdAt: Instant,
     val updatedAt: Instant
 )
+
+data class CommentWithUserName(
+    val id: Long,
+    val userId: String,
+    val userName: String,
+    val reviewId: Long,
+    val komentar: String,
+    val likes: Int?,
+    val gambar: List<String>,
+    val createdAt: Instant,
+    val updatedAt: Instant
+)
