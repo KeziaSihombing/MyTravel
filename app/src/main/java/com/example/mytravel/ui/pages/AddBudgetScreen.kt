@@ -1,9 +1,9 @@
-package com.example.mytravel.ui.budget
+package com.example.mytravel.ui.pages
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -11,8 +11,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -27,11 +31,14 @@ import com.example.mytravel.ui.viewmodel.BudgetViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddBudgetScreen(viewModel: BudgetViewModel = viewModel(), onSave: () -> Unit) {
+fun AddBudgetScreen(
+    viewModel: BudgetViewModel = viewModel(),
+    onNavigateBack: () -> Unit
+) {
     val context = LocalContext.current
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
-        contract = PickVisualMedia(),
+        contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri: Uri? ->
             viewModel.imageUri.value = uri
             uri?.let { imageUri ->
@@ -42,7 +49,16 @@ fun AddBudgetScreen(viewModel: BudgetViewModel = viewModel(), onSave: () -> Unit
     )
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Add Budget") }) }
+        topBar = {
+            TopAppBar(
+                title = { Text("Add Budget") },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
+                    }
+                }
+            )
+        }
     ) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues).padding(16.dp)) {
             OutlinedTextField(
@@ -61,7 +77,7 @@ fun AddBudgetScreen(viewModel: BudgetViewModel = viewModel(), onSave: () -> Unit
             Spacer(modifier = Modifier.height(8.dp))
             Button(onClick = {
                 photoPickerLauncher.launch(
-                    PickVisualMediaRequest(PickVisualMedia.ImageOnly)
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                 )
             }) {
                 Text("Unggah Gambar")
@@ -79,7 +95,7 @@ fun AddBudgetScreen(viewModel: BudgetViewModel = viewModel(), onSave: () -> Unit
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = {
                 viewModel.addBudgetItem()
-                onSave()
+                onNavigateBack() // Kembali setelah menyimpan
             }) {
                 Text("Simpan")
             }
