@@ -8,8 +8,8 @@ import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.storage.Storage
 
 object SupabaseClient {
-    private const val SUPABASE_URL = "https://cqtcmvechsowlnrjevwt.supabase.co"
-    private const val SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxdGNtdmVjaHNvd2xucmpldnd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxOTI1MDIsImV4cCI6MjA4MDc2ODUwMn0.7RmVXouGmf4Gu3JeVGNZc0d4YaviKyiYQHyMZ-ulYQQ"
+    private const val SUPABASE_URL = "https://uihcobvkdhhstseoiurg.supabase.co"
+    private const val SUPABASE_KEY = "sb_publishable__O0kD_BcAJyHVixgeg1oJg_HO-VemQg"
 
     val client = createSupabaseClient(
         supabaseUrl = SUPABASE_URL,
