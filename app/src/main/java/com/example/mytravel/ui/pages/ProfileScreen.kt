@@ -1,9 +1,11 @@
 package com.example.mytravel.ui.pages
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -20,13 +22,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mytravel.ui.common.UiResult
+import com.example.mytravel.ui.components.CircleAvatar
+import com.example.mytravel.ui.components.getInitials
 import com.example.mytravel.ui.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onCommentList: () -> Unit
 ) {
     val profileState by viewModel.profile.collectAsState()
     LaunchedEffect(Unit) {
@@ -35,7 +40,15 @@ fun ProfileScreen(
 
     when (profileState) {
         is UiResult.Loading -> {
-            CircularProgressIndicator()
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ){
+                CircularProgressIndicator(
+                    strokeWidth = 30.dp,
+                )
+            }
         }
         is UiResult.Success -> {
             val profile = (profileState as UiResult.Success).data.firstOrNull()
@@ -44,14 +57,23 @@ fun ProfileScreen(
                 modifier = Modifier.fillMaxSize().background(Color.White),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
                 Box(
                     modifier = Modifier.fillMaxWidth().height(180.dp).background(Color(0xFF6A1B9A)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Text", color = Color.White)
+                    val initials = profile?.name
+                        ?.trim()
+                        ?.split(" ")
+                        ?.filter { it.isNotBlank() }
+                        ?.map { it.first() }
+                        ?.joinToString("")
+                    CircleAvatar(
+                        initials = initials?.uppercase()?: "ND",
+                        color = Color(0xFF7E57C2),
+                        size = 80,
+                        fontSize = 40
+                    )
                 }
-
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     shape = RoundedCornerShape(12.dp)
@@ -61,6 +83,12 @@ fun ProfileScreen(
                         InfoRow("Email", profile?.email ?: "Email tidak tersedia")
                         InfoRow("Deskripsi", profile?.description ?: "Deskripsi tidak tersedia")
                     }
+                }
+
+                Button(
+                    onClick = {onCommentList()}
+                ) {
+                    Text("Lihat Komentar")
                 }
             }
         }

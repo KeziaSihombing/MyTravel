@@ -12,15 +12,16 @@ import io.github.jan.supabase.postgrest.postgrest
 class CommentRepository {
     private val postgrest get() = SupabaseHolder.client.postgrest
 
-    suspend fun getCommentsByReviewID(reviewID: Long): List<Comment>{
-        val response = postgrest["review"].select {
+    suspend fun getCommentsByReviewID(reviewID: Long): List<Comment> {
+        val response = postgrest["komentar"].select {
             filter {
-                eq("id", reviewID)
+                eq("review_id", reviewID)
             }
             order("created_at", Order.DESCENDING)
         }
+        Log.d("GET_CommentsByID", "raw=" + (response.data ?: "null"))
         val list = response.decodeList<CommentDto>()
-        return list.map{CommentMapper.map(it)}
+        return list.map { CommentMapper.map(it) }
     }
 
     suspend fun getCommentsWithUserName(reviewID: Long): List<CommentWithUserName> {
@@ -33,7 +34,6 @@ class CommentRepository {
                 userName = profile?.name ?: "Unknown",
                 reviewId = comment.reviewId,
                 komentar = comment.komentar,
-                likes = comment.likes,
                 gambar = comment.gambar,
                 createdAt = comment.createdAt,
                 updatedAt = comment.updatedAt

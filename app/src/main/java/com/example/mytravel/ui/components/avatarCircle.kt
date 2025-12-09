@@ -14,13 +14,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 
 
 @Composable
-fun CircleAvatar(initials: String, color: Color) {
+fun CircleAvatar(initials: String, color: Color, size: Int = 40, fontSize: Int = 17) {
     Box(
         modifier = Modifier
-            .size(40.dp)
+            .size(size.dp)
             .clip(CircleShape)
             .background(color),
         contentAlignment = Alignment.Center
@@ -29,7 +30,8 @@ fun CircleAvatar(initials: String, color: Color) {
             text = initials,
             fontWeight = FontWeight.Bold,
             fontFamily = FontFamily.SansSerif,
-            color = Color.White
+            color = Color.White,
+            fontSize = fontSize.sp
         )
     }
 }
@@ -37,5 +39,6 @@ fun CircleAvatar(initials: String, color: Color) {
 @Preview
 @Composable
 fun CircleAvatarPreview(){
-    CircleAvatar("AP", Color.Blue)
+    CircleAvatar("AP", Color.Blue, size = 80,
+        fontSize = 40)
 }

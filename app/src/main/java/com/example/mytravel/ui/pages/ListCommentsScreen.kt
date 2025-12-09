@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -48,10 +49,10 @@ fun ListCommentsScreen(
             CircularProgressIndicator()
         }
         is UiResult.Success -> {
-            Row (
+            Column (
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 20.dp, vertical = 30.dp),
             ){
                 Row(
                     modifier = Modifier
@@ -66,7 +67,7 @@ fun ListCommentsScreen(
                         color = Color.Gray
                     )
                 }
-                Spacer(modifier = Modifier.width(15.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 Icon(
                     Icons.Default.Comment,
@@ -75,12 +76,14 @@ fun ListCommentsScreen(
                         .size(20.dp)
                         .clickable { onNavigateAddComment() }
                 )
+
+                Spacer(modifier = Modifier.height(20.dp))
                 Text(
                     text = "Komentar",
                     fontSize = 20.sp,
                     color = Color.Black
                 )
-                Spacer(modifier = Modifier.width(15.dp))
+                Spacer(modifier = Modifier.height(20.dp))
                 CommentList((comments as UiResult.Success).data)
             }
         }

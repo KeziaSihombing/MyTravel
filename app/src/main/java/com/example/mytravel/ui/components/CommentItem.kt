@@ -35,7 +35,7 @@ fun CommentItem(comment: CommentWithUserName, modifier: Modifier = Modifier) {
     ) {
         CircleAvatar(
             initials = getInitials(comment.userName).uppercase(),
-            color = Color(0xFF7E57C2)
+            color = Color(0xFF7E57C2),
         )
 
         Spacer(modifier = Modifier.width(10.dp))
@@ -46,15 +46,10 @@ fun CommentItem(comment: CommentWithUserName, modifier: Modifier = Modifier) {
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 14.sp
             )
-            val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
-                .withZone(ZoneId.systemDefault()) // zona waktu lokal
-            val time = formatter.format(comment.createdAt)
-
-            Text(text = time, fontSize = 12.sp, color = Color.Gray)
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Text(text = if(comment.komentar.length > 100) comment.komentar.take(100) + "..." else comment.komentar, fontSize = 14.sp)
+            Text(text = if(comment.komentar.length > 50) comment.komentar.take(50) + "..." else comment.komentar, fontSize = 14.sp)
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
@@ -63,18 +58,14 @@ fun CommentItem(comment: CommentWithUserName, modifier: Modifier = Modifier) {
                 fontSize = 12.sp,
                 modifier = Modifier.clickable { }
             )
+            Spacer(modifier = Modifier.height(4.dp))
 
+            val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+                .withZone(ZoneId.systemDefault()) // zona waktu lokal
+            val time = formatter.format(comment.createdAt)
+
+            Text(text = time, fontSize = 12.sp, color = Color.Gray)
             Spacer(modifier = Modifier.height(6.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.ThumbUpOffAlt, contentDescription = null, modifier = Modifier.size(12.dp))
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = comment.likes.toString(),
-                    fontSize = 12.sp,
-                    color = Color.Gray
-                )
-            }
-
         }
     }
 }
@@ -99,7 +90,6 @@ fun CommentItemPreview() {
             userName = "John Doe",
             reviewId = 1001L,
             komentar = "Selamat pagi semua! Untuk final project ini, pastikan kalian fokus pada aspek usability testing yang mendalam...",
-            likes = 5,
             gambar = emptyList(),
             createdAt = Instant.now(),
             updatedAt = Instant.now()

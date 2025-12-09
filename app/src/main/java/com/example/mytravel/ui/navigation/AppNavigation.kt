@@ -109,6 +109,9 @@ fun AppNavigation(
                         navController.navigate(AppRoute.Login.route) {
                             popUpTo(AppRoute.Profile.route) { inclusive = true }
                         }
+                    },
+                    onCommentList = {
+                        navController.navigate(AppRoute.ListComment.route)
                     }
                 )
             }

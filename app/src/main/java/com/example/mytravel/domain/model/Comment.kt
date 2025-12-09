@@ -9,7 +9,6 @@ data class CommentDto (
     val user_id: String,
     val review_id: Long,
     val komentar: String,
-    val likes: Int? = null,
     val gambar: List<String>? = emptyList(),
     val created_at: String,
     val updated_at: String
@@ -20,7 +19,6 @@ data class Comment (
     val userId: String,
     val reviewId: Long,
     val komentar: String,
-    val likes: Int?,
     val gambar: List<String>,
     val createdAt: Instant,
     val updatedAt: Instant
@@ -32,7 +30,6 @@ data class CommentWithUserName(
     val userName: String,
     val reviewId: Long,
     val komentar: String,
-    val likes: Int?,
     val gambar: List<String>,
     val createdAt: Instant,
     val updatedAt: Instant
