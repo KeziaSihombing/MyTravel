@@ -2,7 +2,7 @@ package com.example.mytravel.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.mytravel.data.remote.SupabaseHolder
+import com.example.mytravel.data.remote.SupabaseClient
 import com.example.mytravel.data.repository.AuthRepository
 import com.example.mytravel.ui.common.UiResult
 import io.github.jan.supabase.gotrue.SessionStatus
