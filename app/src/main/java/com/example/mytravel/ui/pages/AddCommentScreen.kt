@@ -69,7 +69,8 @@ import java.io.File
 fun AddCommentScreen(
     viewModel: CommentViewModel = viewModel(),
     onNavigateBack: () -> Unit,
-    onDone: () -> Unit
+    onDone: () -> Unit,
+    reviewId: Long
 ){
     var komentar by remember { mutableStateOf("") }
     var imageFile by remember { mutableStateOf<File?>(null) }
