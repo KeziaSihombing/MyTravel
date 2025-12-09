@@ -8,15 +8,19 @@ import kotlinx.serialization.json.Json
 
 class BudgetRepository {
 
+    // Buat instance Json untuk parsing, ignoreUnknownKeys penting untuk stabilitas
+    private val json = Json { ignoreUnknownKeys = true }
+
     suspend fun getBudgetItems(userId: String): List<BudgetItem> {
         return try {
+            // 1. Dapatkan hasil mentah dari Supabase
             val result = SupabaseHolder.client.postgrest["budget"].select {
                 filter {
                     eq("user_id", userId)
                 }
             }
-            // Dekode JSON secara manual untuk menghindari masalah cache IDE
-            Json.decodeFromString<List<BudgetItem>>(result.data)
+            // 2. Dekode String JSON secara manual
+            json.decodeFromString<List<BudgetItem>>(result.data)
         } catch (e: Exception) {
             e.printStackTrace()
             emptyList()
@@ -30,9 +34,9 @@ class BudgetRepository {
     suspend fun uploadBudgetImage(imageBytes: ByteArray, userId: String): String {
         val fileName = "$userId/${System.currentTimeMillis()}.jpg"
         val bucket = SupabaseHolder.client.storage["budget_images"]
-        // 1. Upload the file with its path (fileName)
+        // Upload file
         bucket.upload(path = fileName, data = imageBytes, upsert = true)
-        // 2. Get the public URL for that same path
+        // Dapatkan URL publiknya
         return bucket.publicUrl(fileName)
     }
 }
