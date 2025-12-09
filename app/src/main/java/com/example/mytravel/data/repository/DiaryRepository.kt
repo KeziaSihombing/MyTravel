@@ -1,10 +1,10 @@
 package com.example.mytravel.data.repository
 
-import android.net.Uri
-import com.example.mytravel.data.SupabaseClient
-import io.github.jan.supabase.postgrest.from
+import com.example.mytravel.data.remote.SupabaseClient
+import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.result.decodeList
+import io.github.jan.supabase.postgrest.result.decodeSingle
 import io.github.jan.supabase.storage.storage
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -16,17 +16,18 @@ class DiaryRepository {
 
     suspend fun getAllDiaries(): List<DiaryEntry> {
         return try {
-            supabase.from("diaries")
+            supabase.postgrest["diaries"] // Ganti .from() dengan .postgrest[]
                 .select()
                 .decodeList<DiaryEntry>()
         } catch (e: Exception) {
+            e.printStackTrace()
             emptyList()
         }
     }
 
     suspend fun getDiaryById(id: Int): DiaryEntry? {
         return try {
-            supabase.from("diaries")
+            supabase.postgrest["diaries"] // Ganti .from() dengan .postgrest[]
                 .select {
                     filter {
                         eq("id", id)
@@ -40,8 +41,7 @@ class DiaryRepository {
 
     suspend fun createDiary(entry: DiaryEntry): Boolean {
         return try {
-            supabase.from("diaries")
-                .insert(entry)
+            supabase.postgrest["diaries"].insert(entry) // Ganti .from() dengan .postgrest[]
             true
         } catch (e: Exception) {
             false
@@ -50,12 +50,11 @@ class DiaryRepository {
 
     suspend fun updateDiary(entry: DiaryEntry): Boolean {
         return try {
-            supabase.from("diaries")
-                .update(entry) {
-                    filter {
-                        eq("id", entry.id!!)
-                    }
+            supabase.postgrest["diaries"].update(entry) { // Ganti .from() dengan .postgrest[]
+                filter {
+                    eq("id", entry.id!!)
                 }
+            }
             true
         } catch (e: Exception) {
             false
@@ -64,12 +63,11 @@ class DiaryRepository {
 
     suspend fun deleteDiary(id: Int): Boolean {
         return try {
-            supabase.from("diaries")
-                .delete {
-                    filter {
-                        eq("id", id)
-                    }
+            supabase.postgrest["diaries"].delete { // Ganti .from() dengan .postgrest[]
+                filter {
+                    eq("id", id)
                 }
+            }
             true
         } catch (e: Exception) {
             false
@@ -79,8 +77,9 @@ class DiaryRepository {
     suspend fun uploadImage(fileBytes: ByteArray, fileName: String): String? {
         return try {
             val uniqueFileName = "${UUID.randomUUID()}_$fileName"
-            supabase.storage.from(bucketName).upload(uniqueFileName, fileBytes)
-            supabase.storage.from(bucketName).publicUrl(uniqueFileName)
+            val bucket = supabase.storage[bucketName] // Ganti .storage.from() dengan .storage[]
+            bucket.upload(uniqueFileName, fileBytes)
+            bucket.publicUrl(uniqueFileName)
         } catch (e: Exception) {
             null
         }
@@ -89,7 +88,7 @@ class DiaryRepository {
     suspend fun deleteImage(imageUrl: String): Boolean {
         return try {
             val fileName = imageUrl.substringAfterLast("/")
-            supabase.storage.from(bucketName).delete(fileName)
+            supabase.storage[bucketName].delete(listOf(fileName)) // Ganti .storage.from() dan bungkus dengan listOf
             true
         } catch (e: Exception) {
             false

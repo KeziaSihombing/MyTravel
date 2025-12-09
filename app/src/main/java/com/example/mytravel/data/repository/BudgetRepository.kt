@@ -1,7 +1,7 @@
 package com.example.mytravel.data.repository
 
 import com.example.mytravel.data.model.BudgetItem
-import com.example.mytravel.data.remote.SupabaseHolder
+import com.example.mytravel.data.remote.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.storage.storage
 import kotlinx.serialization.json.Json
@@ -14,7 +14,7 @@ class BudgetRepository {
     suspend fun getBudgetItems(userId: String): List<BudgetItem> {
         return try {
             // 1. Dapatkan hasil mentah dari Supabase
-            val result = SupabaseHolder.client.postgrest["budget"].select {
+            val result = SupabaseClient.client.postgrest["budget"].select {
                 filter {
                     eq("user_id", userId)
                 }
@@ -28,12 +28,12 @@ class BudgetRepository {
     }
 
     suspend fun addBudgetItem(budgetItem: BudgetItem) {
-        SupabaseHolder.client.postgrest["budget"].insert(budgetItem)
+        SupabaseClient.client.postgrest["budget"].insert(budgetItem)
     }
 
     suspend fun uploadBudgetImage(imageBytes: ByteArray, userId: String): String {
         val fileName = "$userId/${System.currentTimeMillis()}.jpg"
-        val bucket = SupabaseHolder.client.storage["budget_images"]
+        val bucket = SupabaseClient.client.storage["budget_images"]
         // Upload file
         bucket.upload(path = fileName, data = imageBytes, upsert = true)
         // Dapatkan URL publiknya
