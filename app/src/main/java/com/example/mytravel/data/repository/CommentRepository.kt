@@ -1,7 +1,7 @@
 package com.example.mytravel.data.repository
 
 import android.util.Log
-import com.example.mytravel.data.remote.SupabaseHolder
+import com.example.mytravel.data.remote.SupabaseClient
 import com.example.mytravel.domain.mapper.CommentMapper
 import com.example.mytravel.domain.model.Comment
 import com.example.mytravel.domain.model.CommentDto
@@ -10,7 +10,7 @@ import com.example.mytravel.domain.model.CommentWithUserName
 import io.github.jan.supabase.postgrest.postgrest
 
 class CommentRepository {
-    private val postgrest get() = SupabaseHolder.client.postgrest
+    private val postgrest get() = SupabaseClient.client.postgrest
 
     suspend fun getCommentsByReviewID(reviewID: Long): List<Comment> {
         val response = postgrest["komentar"].select {
