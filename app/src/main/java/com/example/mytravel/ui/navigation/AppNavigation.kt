@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.mytravel.ui.common.UiResult
 import com.example.mytravel.ui.components.NavigationBar
 import com.example.mytravel.ui.pages.ListCommentsScreen
 import com.example.mytravel.ui.pages.LoginScreen
@@ -32,32 +33,38 @@ fun AppNavigation(
     listCommentViewModel: ProfileViewModel = viewModel(),
 ) {
     val navController = rememberNavController()
-    val isAuthenticated by authViewModel.isAuthenticated.collectAsStateWithLifecycle()
+    val isAuthenticated by authViewModel.authState.collectAsStateWithLifecycle()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
-    LaunchedEffect(isAuthenticated, navController) {
-        if (!isAuthenticated) {
-            Log.d("AppNavigation", "DEBUG: User authenticated → Login")
-            navController.navigate(AppRoute.Register.route) {
-                popUpTo(navController.graph.id) {
-                    inclusive = true
-                }
-            }
+
+    val initialRoute = when (isAuthenticated) {
+        is UiResult.Success -> if ((isAuthenticated as UiResult.Success<Boolean>).data) AppRoute.Home.route else AppRoute.Login.route
+        else -> AppRoute.Login.route
+    }
+
+    LaunchedEffect(isAuthenticated, currentRoute) {
+        val targetRoute = when (isAuthenticated) {
+            is UiResult.Success -> if ((isAuthenticated as UiResult.Success<Boolean>).data) AppRoute.Home.route else AppRoute.Login.route
+            is UiResult.Error -> AppRoute.Login.route
+            else -> null
         }
-        else {
-            // ...paksa navigasi ke Home
-            Log.d("AppNavigation", "DEBUG: User authenticated → Home")
-            navController.navigate(AppRoute.Home.route) {
-                popUpTo(navController.graph.id) { inclusive = true }
+
+        // Hanya navigate jika route saat ini berbeda DAN targetRoute bukan null
+        if (!targetRoute.isNullOrEmpty() && currentRoute != targetRoute) {
+            navController.navigate(targetRoute) {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                launchSingleTop = true
             }
         }
     }
 
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+
     val showBottomBar = currentRoute !in listOf(
         AppRoute.Login.route,
         AppRoute.Register.route,
         AppRoute.AddComment.route,
+        null,
     )
     Log.d("ROUTE_CHECK", "Current Route: $currentRoute")
     Scaffold(
@@ -72,7 +79,7 @@ fun AppNavigation(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = AppRoute.Register.route,
+            startDestination = initialRoute,
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(AppRoute.Login.route) {

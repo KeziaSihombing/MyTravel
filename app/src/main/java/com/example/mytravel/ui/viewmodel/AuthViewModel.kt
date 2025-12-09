@@ -2,6 +2,7 @@ package com.example.mytravel.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mytravel.data.remote.SupabaseHolder
 import com.example.mytravel.data.repository.AuthRepository
 import com.example.mytravel.ui.common.UiResult
 import io.github.jan.supabase.gotrue.SessionStatus
@@ -16,16 +17,32 @@ class AuthViewModel(
     private val repo: AuthRepository = AuthRepository()
 ) : ViewModel() {
 
-    private val _authState = MutableStateFlow<UiResult<Boolean>>(UiResult.Success(repo.currentSession() != null))
+    private val _authState = MutableStateFlow<UiResult<Boolean>>(UiResult.Loading)
     val authState: StateFlow<UiResult<Boolean>> = _authState
 
-    val isAuthenticated: StateFlow<Boolean> = repo.sessionStatus
-        .map { status -> status is SessionStatus.Authenticated }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = false
-        )
+    init {
+        viewModelScope.launch {
+            _authState.value = UiResult.Loading
+            try {
+                val session = repo.currentSession()
+                if (session != null) {
+                    try {
+                        repo.refreshSession()
+                        _authState.value = UiResult.Success(true)
+                    } catch (e: Exception) {
+                        repo.logout()
+                        _authState.value = UiResult.Success(false)
+                    }
+                } else {
+                    _authState.value = UiResult.Success(false)
+                }
+            } catch (e: Exception) {
+                _authState.value = UiResult.Success(false)
+            }
+        }
+    }
+
+
 
     fun register(email: String, password: String, name: String, description: String) {
         _authState.value = UiResult.Loading
@@ -43,7 +60,7 @@ class AuthViewModel(
         _authState.value = UiResult.Loading
         viewModelScope.launch {
             try {
-                repo.login(email, password)
+                val user = repo.login(email, password)
                 _authState.value = UiResult.Success(true)
             } catch (e: Exception) {
                 _authState.value = UiResult.Error(e.message ?: "Login gagal")

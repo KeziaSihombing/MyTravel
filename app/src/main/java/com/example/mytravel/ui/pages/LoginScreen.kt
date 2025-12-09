@@ -39,13 +39,20 @@ fun LoginScreen(
     var errorMessage by remember { mutableStateOf("") }
 
     LaunchedEffect(state) {
-        if (state is UiResult.Error) {
-            errorMessage = (state as UiResult.Error).message
-        }
-        if (state is UiResult.Success) {
-                onNavigateHome()
+        when (state) {
+            is UiResult.Error -> {
+                errorMessage = (state as UiResult.Error).message
+            }
+            is UiResult.Success -> {
+                val loggedIn = (state as UiResult.Success<Boolean>).data
+                if (loggedIn) {
+                    onNavigateHome()
+                }
+            }
+            else -> {}
         }
     }
+
 
 
     Column(

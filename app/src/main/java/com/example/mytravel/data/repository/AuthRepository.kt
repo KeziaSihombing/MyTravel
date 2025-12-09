@@ -59,7 +59,21 @@ class AuthRepository {
             }
         }
 
-
-
     fun currentSession(): UserSession? = SupabaseHolder.session()
+
+    suspend fun refreshSession() {
+        val session = currentSession()
+            ?: throw IllegalStateException("No session available to refresh")
+
+        val refreshToken = session.refreshToken
+            ?: throw IllegalStateException("Refresh token is null")
+
+        try {
+            auth.refreshSession(refreshToken) // pakai refreshToken
+        } catch (e: Exception) {
+            logout()
+            throw e
+        }
+    }
+
 }
