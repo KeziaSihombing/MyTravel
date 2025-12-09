@@ -1,15 +1,14 @@
+# IDE files
 *.iml
 .gradle
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+/.idea/
 .DS_Store
+
+# Build files
 /build
 /captures
+
+# Other
 .externalNativeBuild
 .cxx
-local.properties
