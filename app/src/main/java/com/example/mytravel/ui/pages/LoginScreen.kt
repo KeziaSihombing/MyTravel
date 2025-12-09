@@ -1,29 +1,59 @@
 package com.example.mytravel.ui.pages
 
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.mytravel.ui.viewmodel.LoginViewModel
+import com.example.mytravel.ui.common.UiResult
+import com.example.mytravel.ui.viewmodel.AuthViewModel
 
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = viewModel(),
-    onLoginSuccess: () -> Unit = {}
+    viewModel: AuthViewModel,
+    onNavigateRegister: () -> Unit,
+    onNavigateProfile: () -> Unit,
+    onNavigateHome: () -> Unit
 ){
-    if(viewModel.isLoginSuccess){
-        onLoginSuccess()
+    val state by viewModel.authState.collectAsState()
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
+
+    LaunchedEffect(state) {
+        when (state) {
+            is UiResult.Error -> {
+                errorMessage = (state as UiResult.Error).message
+            }
+            is UiResult.Success -> {
+                val loggedIn = (state as UiResult.Success<Boolean>).data
+                if (loggedIn) {
+                    onNavigateHome()
+                }
+            }
+            else -> {}
+        }
     }
+
+
 
     Column(
         modifier = Modifier
@@ -32,7 +62,6 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-
         Text(
             text = "Selamat Datang!",
             fontSize = 20.sp,
@@ -48,18 +77,17 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedTextField(
-            value = viewModel.email,
-            onValueChange = viewModel::onEmailChanged,
+            email,
+            {email = it},
             label = { Text("Email") },
-            singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = viewModel.password,
-            onValueChange = viewModel::onPasswordChanged,
+            password,
+            {password = it},
             label = { Text("Password") },
             visualTransformation = PasswordVisualTransformation(),
             singleLine = true,
@@ -70,16 +98,9 @@ fun LoginScreen(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.Absolute.Right,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(
-                    checked = false,
-                    onCheckedChange = {}
-                )
-                Text(text = "Ingatkan Saya")
-            }
             Text(
                 text = "Forgot Password?",
                 color = Color(0xFF6A1B9A),
@@ -90,21 +111,20 @@ fun LoginScreen(
         Spacer(Modifier.height(24.dp))
 
         Button(
-            onClick = { viewModel.login() },
+            onClick = { viewModel.login(email, password) },
+            enabled = state !is UiResult.Loading,
             modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A))
         ) {
-            Text("Masuk", color = Color.White, fontSize = 16.sp)
+            Text(if(state is UiResult.Loading) "Loading..." else "Masuk", color = Color.White, fontSize = 16.sp)
         }
+        Spacer(Modifier.height(24.dp))
+
+        TextButton(onClick = onNavigateRegister) { Text("Belum punya akun? Register") }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview() {
-    LoginScreen()
-}
 
