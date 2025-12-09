@@ -2,8 +2,8 @@ package com.example.mytravel.ui.budget
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMedia
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -31,11 +31,11 @@ fun AddBudgetScreen(viewModel: BudgetViewModel = viewModel(), onSave: () -> Unit
     val context = LocalContext.current
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),
+        contract = PickVisualMedia(),
         onResult = { uri: Uri? ->
             viewModel.imageUri.value = uri
-            uri?.let {
-                val inputStream = context.contentResolver.openInputStream(it)
+            uri?.let { imageUri ->
+                val inputStream = context.contentResolver.openInputStream(imageUri)
                 viewModel.setImageBytes(inputStream?.readBytes())
             }
         }
@@ -43,34 +43,34 @@ fun AddBudgetScreen(viewModel: BudgetViewModel = viewModel(), onSave: () -> Unit
 
     Scaffold(
         topBar = { TopAppBar(title = { Text("Add Budget") }) }
-    ) {
-        Column(modifier = Modifier.padding(it).padding(16.dp)) {
+    ) { paddingValues ->
+        Column(modifier = Modifier.padding(paddingValues).padding(16.dp)) {
             OutlinedTextField(
                 value = viewModel.title.value,
-                onValueChange = { viewModel.title.value = it },
+                onValueChange = { newTitle -> viewModel.title.value = newTitle },
                 label = { Text("Judul") },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 value = viewModel.nominal.value,
-                onValueChange = { viewModel.nominal.value = it },
+                onValueChange = { newNominal -> viewModel.nominal.value = newNominal },
                 label = { Text("Nominal") },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = { 
+            Button(onClick = {
                 photoPickerLauncher.launch(
-                    PickVisualMedia.Request(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    PickVisualMediaRequest(PickVisualMedia.ImageOnly)
                 )
             }) {
                 Text("Unggah Gambar")
             }
 
-            viewModel.imageUri.value?.let {
+            viewModel.imageUri.value?.let { uri ->
                 Spacer(modifier = Modifier.height(8.dp))
                 Image(
-                    painter = rememberAsyncImagePainter(it),
+                    painter = rememberAsyncImagePainter(uri),
                     contentDescription = "Selected image",
                     modifier = Modifier.size(128.dp)
                 )
