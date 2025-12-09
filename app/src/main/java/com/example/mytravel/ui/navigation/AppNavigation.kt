@@ -16,6 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mytravel.ui.common.UiResult
 import com.example.mytravel.ui.components.NavigationBar
 import com.example.mytravel.ui.pages.ListCommentsScreen
+import com.example.mytravel.ui.pages.AddCommentScreen
 import com.example.mytravel.ui.pages.LoginScreen
 import com.example.mytravel.ui.pages.HomeScreen
 import com.example.mytravel.ui.pages.RegisterScreen
@@ -29,8 +30,7 @@ fun AppNavigation(
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = viewModel(),
     profileViewModel: ProfileViewModel = viewModel(),
-    homeViewModel: HomeViewModel = viewModel(),
-    listCommentViewModel: ProfileViewModel = viewModel(),
+    homeViewModel: HomeViewModel = viewModel()
 ) {
     val navController = rememberNavController()
 
@@ -67,6 +67,7 @@ fun AppNavigation(
         AppRoute.Login.route,
         AppRoute.Register.route,
         AppRoute.AddComment.route,
+        AppRoute.ListComment.route,
         null,
     )
     Log.d("ROUTE_CHECK", "Current Route: $currentRoute")
@@ -124,6 +125,16 @@ fun AppNavigation(
             composable(AppRoute.Home.route) {
                 HomeScreen(
                     viewModel = homeViewModel
+                )
+            }
+            composable (AppRoute.AddComment.route) {
+                AddCommentScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onDone = {
+                        navController.navigate(AppRoute.ListComment.route)
+                    }
                 )
             }
         }
