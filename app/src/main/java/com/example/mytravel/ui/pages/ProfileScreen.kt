@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreen(
-    viewModel: ProfileViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    viewModel: ProfileViewModel,
     onLogout: () -> Unit
 ) {
     val profileState by viewModel.profile.collectAsState()

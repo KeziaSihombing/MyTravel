@@ -30,6 +30,9 @@ fun RegisterScreen(
         if (state is UiResult.Error) {
             errorMessage = (state as UiResult.Error).message
         }
+        if (state is UiResult.Success) {
+            onNavigateLogin()
+        }
     }
 
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

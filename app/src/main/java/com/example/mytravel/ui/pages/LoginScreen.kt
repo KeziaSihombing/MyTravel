@@ -31,10 +31,21 @@ fun LoginScreen(
     viewModel: AuthViewModel,
     onNavigateRegister: () -> Unit,
     onNavigateProfile: () -> Unit,
+    onNavigateHome: () -> Unit
 ){
     val state by viewModel.authState.collectAsState()
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
+
+    LaunchedEffect(state) {
+        if (state is UiResult.Error) {
+            errorMessage = (state as UiResult.Error).message
+        }
+        if (state is UiResult.Success) {
+                onNavigateHome()
+        }
+    }
 
 
     Column(
