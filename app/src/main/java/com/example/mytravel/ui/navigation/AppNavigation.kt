@@ -38,17 +38,13 @@ fun AppNavigation(
     val currentRoute = navBackStackEntry?.destination?.route
 
 
-    val initialRoute = when (isAuthenticated) {
-        is UiResult.Success -> if ((isAuthenticated as UiResult.Success<Boolean>).data) AppRoute.Home.route else AppRoute.Login.route
-        else -> AppRoute.Login.route
-    }
 
     LaunchedEffect(isAuthenticated, currentRoute) {
         // Hanya lakukan auto-navigate jika user tidak sedang di layar auth
         val authScreens = listOf(AppRoute.Login.route, AppRoute.Register.route)
 
         val targetRoute = when (isAuthenticated) {
-            is UiResult.Success -> if ((isAuthenticated as UiResult.Success<Boolean>).data) AppRoute.Home.route else null
+            is UiResult.Success -> if ((isAuthenticated as UiResult.Success<Boolean>).data && currentRoute in authScreens ) AppRoute.Home.route else null
             else -> null
         }
 
@@ -59,8 +55,6 @@ fun AppNavigation(
             }
         }
     }
-
-
 
     val showBottomBar = currentRoute !in listOf(
         AppRoute.Login.route,
@@ -81,7 +75,7 @@ fun AppNavigation(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = initialRoute,
+            startDestination = AppRoute.Login.route,
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(AppRoute.Login.route) {
