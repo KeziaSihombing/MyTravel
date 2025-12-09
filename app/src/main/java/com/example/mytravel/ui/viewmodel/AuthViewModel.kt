@@ -17,32 +17,16 @@ class AuthViewModel(
     private val repo: AuthRepository = AuthRepository()
 ) : ViewModel() {
 
-    private val _authState = MutableStateFlow<UiResult<Boolean>>(UiResult.Loading)
+    private val _authState = MutableStateFlow<UiResult<Boolean>>(UiResult.Success(repo.currentSession() != null))
     val authState: StateFlow<UiResult<Boolean>> = _authState
 
-    init {
-        viewModelScope.launch {
-            _authState.value = UiResult.Loading
-            try {
-                val session = repo.currentSession()
-                if (session != null) {
-                    try {
-                        repo.refreshSession()
-                        _authState.value = UiResult.Success(true)
-                    } catch (e: Exception) {
-                        repo.logout()
-                        _authState.value = UiResult.Success(false)
-                    }
-                } else {
-                    _authState.value = UiResult.Success(false)
-                }
-            } catch (e: Exception) {
-                _authState.value = UiResult.Success(false)
-            }
-        }
-    }
-
-
+    val isAuthenticated: StateFlow<Boolean> = repo.sessionStatus
+        .map { status -> status is SessionStatus.Authenticated }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = false
+        )
 
     fun register(email: String, password: String, name: String, description: String) {
         _authState.value = UiResult.Loading

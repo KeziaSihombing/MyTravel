@@ -30,29 +30,10 @@ import com.example.mytravel.ui.viewmodel.AuthViewModel
 fun LoginScreen(
     viewModel: AuthViewModel,
     onNavigateRegister: () -> Unit,
-    onNavigateProfile: () -> Unit,
-    onNavigateHome: () -> Unit
 ){
     val state by viewModel.authState.collectAsState()
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf("") }
-
-    LaunchedEffect(state) {
-        when (state) {
-            is UiResult.Error -> {
-                errorMessage = (state as UiResult.Error).message
-            }
-            is UiResult.Success -> {
-                val loggedIn = (state as UiResult.Success<Boolean>).data
-                if (loggedIn) {
-                    onNavigateHome()
-                }
-            }
-            else -> {}
-        }
-    }
-
 
 
     Column(
@@ -124,6 +105,13 @@ fun LoginScreen(
         Spacer(Modifier.height(24.dp))
 
         TextButton(onClick = onNavigateRegister) { Text("Belum punya akun? Register") }
+    }
+
+    if (state is UiResult.Error) {
+        Text(
+            text = (state as UiResult.Error).message,
+            color = MaterialTheme.colorScheme.error
+        )
     }
 }
 

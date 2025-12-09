@@ -33,25 +33,32 @@ fun AppNavigation(
     listCommentViewModel: ProfileViewModel = viewModel(),
 ) {
     val navController = rememberNavController()
-    val isAuthenticated by authViewModel.authState.collectAsStateWithLifecycle()
+
+    val isAuthenticated by authViewModel.isAuthenticated.collectAsStateWithLifecycle()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
 
 
-    LaunchedEffect(isAuthenticated, currentRoute) {
+    LaunchedEffect(isAuthenticated, navController) {
         // Hanya lakukan auto-navigate jika user tidak sedang di layar auth
         val authScreens = listOf(AppRoute.Login.route, AppRoute.Register.route)
 
-        val targetRoute = when (isAuthenticated) {
-            is UiResult.Success -> if ((isAuthenticated as UiResult.Success<Boolean>).data && currentRoute in authScreens ) AppRoute.Home.route else null
-            else -> null
-        }
+        Log.d("AppNavigation", "DEBUG: isAuthenticated = $isAuthenticated")
 
-        if (!targetRoute.isNullOrEmpty() && currentRoute !in authScreens) {
-            navController.navigate(targetRoute) {
-                popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                launchSingleTop = true
+        if (!isAuthenticated) {
+            Log.d("AppNavigation", "DEBUG: User NOT authenticated → Login")
+            // ...paksa navigasi ke Login dan bersihkan semua back stack
+            navController.navigate(AppRoute.Login.route) {
+                popUpTo(navController.graph.id) {
+                    inclusive = true
+                }
+            }
+        }
+        else {
+            Log.d("AppNavigation", "DEBUG: User authenticated → Home")
+            navController.navigate(AppRoute.Home.route) {
+                popUpTo(AppRoute.Login.route) { inclusive = true }
             }
         }
     }
@@ -83,22 +90,13 @@ fun AppNavigation(
                     viewModel = authViewModel,
                     onNavigateRegister = {
                         navController.navigate(AppRoute.Register.route)
-                    },
-                    onNavigateProfile = {
-                        navController.navigate(AppRoute.Profile.route)
-                    },
-                    onNavigateHome = {
-                        navController.navigate(AppRoute.Home.route)
                     }
                 )
             }
 
             composable(AppRoute.Register.route) {
                 RegisterScreen(
-                    viewModel = authViewModel,
-                    onNavigateLogin = {
-                        navController.navigate(AppRoute.Login.route)
-                    }
+                    viewModel = authViewModel
                 )
             }
 
@@ -106,9 +104,7 @@ fun AppNavigation(
                 ProfileScreen(
                     viewModel = profileViewModel,
                     onLogout = {
-                        navController.navigate(AppRoute.Login.route) {
-                            popUpTo(AppRoute.Profile.route) { inclusive = true }
-                        }
+                        authViewModel.logout()
                     },
                     onCommentList = {
                         navController.navigate(AppRoute.ListComment.route)
