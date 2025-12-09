@@ -16,6 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mytravel.ui.common.UiResult
 import com.example.mytravel.ui.components.NavigationBar
 import com.example.mytravel.ui.pages.ListCommentsScreen
+import com.example.mytravel.ui.pages.AddCommentScreen
 import com.example.mytravel.ui.pages.LoginScreen
 import com.example.mytravel.ui.pages.HomeScreen
 import com.example.mytravel.ui.pages.RegisterScreen
@@ -29,8 +30,7 @@ fun AppNavigation(
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = viewModel(),
     profileViewModel: ProfileViewModel = viewModel(),
-    homeViewModel: HomeViewModel = viewModel(),
-    listCommentViewModel: ProfileViewModel = viewModel(),
+    homeViewModel: HomeViewModel = viewModel()
 ) {
     val navController = rememberNavController()
 
@@ -63,12 +63,17 @@ fun AppNavigation(
         }
     }
 
-    val showBottomBar = currentRoute !in listOf(
+    val hideRoutes = listOf(
         AppRoute.Login.route,
         AppRoute.Register.route,
         AppRoute.AddComment.route,
-        null,
+        AppRoute.ListComment.route
     )
+
+    val showBottomBar = hideRoutes.none { route ->
+        currentRoute?.startsWith(route) == true
+    }
+
     Log.d("ROUTE_CHECK", "Current Route: $currentRoute")
     Scaffold(
         bottomBar = {
@@ -99,31 +104,62 @@ fun AppNavigation(
                     viewModel = authViewModel
                 )
             }
-
             composable(AppRoute.Profile.route) {
                 ProfileScreen(
                     viewModel = profileViewModel,
                     onLogout = {
                         authViewModel.logout()
                     },
-                    onCommentList = {
-                        navController.navigate(AppRoute.ListComment.route)
+                    onCommentList = { reviewId ->
+                        navController.navigate("listComments/$reviewId")
                     }
                 )
             }
-            composable(AppRoute.ListComment.route) {
+
+            composable(
+                route = "listComments/{reviewId}"
+            ) { backStackEntry ->
+                val reviewId = backStackEntry.arguments?.getString("reviewId")?.toLong() ?: 0L
                 ListCommentsScreen(
+                    reviewId = reviewId,
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateAddComment = { navController.navigate("addComment/$reviewId") }
+                )
+            }
+
+
+            composable(
+                route = AppRoute.ListComment.route + "/{reviewId}"
+            ) { backStackEntry ->
+                val reviewId = backStackEntry.arguments?.getString("reviewId")?.toLong() ?: 0L
+                ListCommentsScreen(
+                    reviewId = reviewId,
                     onNavigateBack = {
                         navController.popBackStack()
                     },
                     onNavigateAddComment = {
-                        navController.navigate(AppRoute.AddComment.route)
+                        navController.navigate("addComment/$reviewId")
                     }
                 )
             }
+
             composable(AppRoute.Home.route) {
                 HomeScreen(
                     viewModel = homeViewModel
+                )
+            }
+            composable (
+                route = "addComment/{reviewId}"
+            ) {backStackEntry ->
+                val reviewId = backStackEntry.arguments?.getString("reviewId")?.toLong()?: 0L
+                AddCommentScreen(
+                    reviewId = reviewId,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onDone = {
+                        navController.popBackStack()
+                    }
                 )
             }
         }

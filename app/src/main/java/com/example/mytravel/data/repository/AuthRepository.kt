@@ -2,7 +2,7 @@ package com.example.mytravel.data.repository
 
 import android.util.Log
 import coil.util.CoilUtils.result
-import com.example.mytravel.data.remote.SupabaseHolder
+import com.example.mytravel.data.remote.SupabaseClient
 import io.github.jan.supabase.gotrue.Auth
 import io.github.jan.supabase.gotrue.SessionStatus
 import io.github.jan.supabase.gotrue.auth
@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onEach
 
 class AuthRepository {
-    private val auth: Auth get() = SupabaseHolder.client.auth
-    private val postgrest get() = SupabaseHolder.client.postgrest
+    private val auth: Auth get() = SupabaseClient.client.auth
+    private val postgrest get() = SupabaseClient.client.postgrest
     suspend fun register(email: String, password: String) {
         auth.signUpWith(Email) {
             this.email = email
@@ -59,7 +59,7 @@ class AuthRepository {
             }
         }
 
-    fun currentSession(): UserSession? = SupabaseHolder.session()
+    fun currentSession(): UserSession? = SupabaseClient.session()
 
     suspend fun refreshSession() {
         val session = currentSession()

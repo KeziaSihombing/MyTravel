@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Comment
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -30,18 +31,18 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mytravel.domain.model.CommentWithUserName
 import com.example.mytravel.ui.common.UiResult
 import com.example.mytravel.ui.components.CommentItem
-import com.example.mytravel.ui.viewmodel.ListCommentViewModel
+import com.example.mytravel.ui.viewmodel.CommentViewModel
 
 @Composable
 fun ListCommentsScreen(
-    viewModel: ListCommentViewModel = viewModel(),
+    viewModel: CommentViewModel = viewModel(),
     onNavigateBack: () -> Unit,
-    onNavigateAddComment: () -> Unit
+    onNavigateAddComment: () -> Unit,
+    reviewId: Long
 ) {
     val comments by viewModel.comments.collectAsState()
     LaunchedEffect(Unit) {
-        val reviewID = 1.toLong();
-        viewModel.getCommentsWithUserName(reviewID)
+        viewModel.getCommentsWithUserName(reviewId)
     }
 
     when(comments){
@@ -69,20 +70,24 @@ fun ListCommentsScreen(
                 }
                 Spacer(modifier = Modifier.height(20.dp))
 
-                Icon(
-                    Icons.Default.Comment,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(20.dp)
-                        .clickable { onNavigateAddComment() }
-                )
-
+                Button(
+                    onClick = { onNavigateAddComment() },
+                ) {
+                    Icon(
+                        Icons.Default.Comment,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clickable { onNavigateAddComment() },
+                    )
+                }
                 Spacer(modifier = Modifier.height(20.dp))
                 Text(
                     text = "Komentar",
                     fontSize = 20.sp,
                     color = Color.Black
                 )
+
                 Spacer(modifier = Modifier.height(20.dp))
                 CommentList((comments as UiResult.Success).data)
             }

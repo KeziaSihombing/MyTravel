@@ -1,7 +1,7 @@
 package com.example.mytravel.data.repository
 
 import android.net.Uri
-import com.example.mytravel.data.SupabaseClient
+import com.example.mytravel.data.remote.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.storage.storage
 import java.io.File
