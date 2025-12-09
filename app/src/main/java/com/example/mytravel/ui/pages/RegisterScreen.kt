@@ -25,13 +25,18 @@ fun RegisterScreen(
     var description by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
 
-
     LaunchedEffect(state) {
-        if (state is UiResult.Error) {
-            errorMessage = (state as UiResult.Error).message
-        }
-        if (state is UiResult.Success) {
-            onNavigateLogin()
+        when (state) {
+            is UiResult.Error -> {
+                errorMessage = (state as UiResult.Error).message
+            }
+            is UiResult.Success -> {
+                val loggedIn = (state as UiResult.Success<Boolean>).data
+                if (loggedIn) {
+                    onNavigateLogin()
+                }
+            }
+            else -> {}
         }
     }
 

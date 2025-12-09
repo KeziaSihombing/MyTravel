@@ -44,20 +44,22 @@ fun AppNavigation(
     }
 
     LaunchedEffect(isAuthenticated, currentRoute) {
+        // Hanya lakukan auto-navigate jika user tidak sedang di layar auth
+        val authScreens = listOf(AppRoute.Login.route, AppRoute.Register.route)
+
         val targetRoute = when (isAuthenticated) {
-            is UiResult.Success -> if ((isAuthenticated as UiResult.Success<Boolean>).data) AppRoute.Home.route else AppRoute.Login.route
-            is UiResult.Error -> AppRoute.Login.route
+            is UiResult.Success -> if ((isAuthenticated as UiResult.Success<Boolean>).data) AppRoute.Home.route else null
             else -> null
         }
 
-        // Hanya navigate jika route saat ini berbeda DAN targetRoute bukan null
-        if (!targetRoute.isNullOrEmpty() && currentRoute != targetRoute) {
+        if (!targetRoute.isNullOrEmpty() && currentRoute !in authScreens) {
             navController.navigate(targetRoute) {
                 popUpTo(navController.graph.startDestinationId) { inclusive = true }
                 launchSingleTop = true
             }
         }
     }
+
 
 
     val showBottomBar = currentRoute !in listOf(
