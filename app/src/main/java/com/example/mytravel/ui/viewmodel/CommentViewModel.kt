@@ -36,7 +36,7 @@ class CommentViewModel(
                 if (comments.isNotEmpty()) {
                     _comments.value = UiResult.Success(comments)
                 } else {
-                    UiResult.Error("No comments found")
+                    _comments.value = UiResult.Success(emptyList())
                 }
             } catch (e: Exception) {
                 _comments.value = UiResult.Error(e.message ?: "Gagal memuat komentar")

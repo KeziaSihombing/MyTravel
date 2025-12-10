@@ -125,9 +125,6 @@ fun AppNavigation(
                     viewModel = profileViewModel,
                     onLogout = {
                         authViewModel.logout()
-                    },
-                    onCommentList = { reviewId ->
-                        navController.navigate(AppRoute.ListComment.build(reviewId.toString()))
                     }
                 )
             }
@@ -139,7 +136,7 @@ fun AppNavigation(
                 val reviewId = backStackEntry.arguments?.getString("reviewId")?.toLong() ?: 0L
                 ListCommentsScreen(
                     reviewId = reviewId,
-                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateBack = { id -> navController.navigate(AppRoute.DestinationDetail.createRoute(id)) },
                     onNavigateAddComment = { navController.navigate(AppRoute.AddComment.build(reviewId.toString())) },
                     onNavigateCommentDetail = {id -> navController.navigate(AppRoute.CommentDetail.build(id.toString()))}
                 )
@@ -201,7 +198,13 @@ fun AppNavigation(
                     onNavigateAddReview = { navController.navigate(AppRoute.AddReview.createRoute(destinationId)) },
                     onNavigateReviewDetail = { reviewId ->
                         navController.navigate(AppRoute.ReviewDetail.createRoute(reviewId))
-                    }
+                    },
+                    onNavigateCommentList = { reviewId ->
+                        navController.navigate(AppRoute.ListComment.build(reviewId.toString()))
+                    },
+                    onNavigateAddComment = { reviewId ->
+                        navController.navigate(AppRoute.AddComment.build(reviewId.toString()))
+                    },
                 )
             }
 

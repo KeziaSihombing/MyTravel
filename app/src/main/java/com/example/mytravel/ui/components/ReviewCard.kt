@@ -3,9 +3,16 @@ package com.example.mytravel.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Comment
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,7 +24,9 @@ import com.example.mytravel.domain.model.Review
 @Composable
 fun ReviewCard(
     review: Review,
-    onClick: (Long) -> Unit
+    onClick: (Long) -> Unit,
+    onCommentList: (Long) -> Unit,
+    onNavigateAddComment: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -43,13 +52,33 @@ fun ReviewCard(
             modifier = Modifier.padding(vertical = 6.dp)
         )
 
-        Text(
-            text = "Lihat selengkapnya",
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.clickable {
-                onClick(review.id)
-            }
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ){
+            Text(
+                text = "Lihat selengkapnya",
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clickable {
+                    onClick(review.id)
+                }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Lihat komentar",
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clickable{
+                    onCommentList(review.id)
+                },
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Icon(
+                Icons.AutoMirrored.Filled.Comment,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(20.dp)
+                    .clickable { onNavigateAddComment() },
+            )
+        }
     }
 }
 

@@ -40,6 +40,8 @@ fun DestinationDetailScreen(
     onNavigateBack: () -> Unit,
     onNavigateAddReview: () -> Unit,
     onNavigateReviewDetail: (Long) -> Unit,
+    onNavigateCommentList: (Long) -> Unit,
+    onNavigateAddComment: (Long) -> Unit,
     destinationViewModel: DestinationViewModel = viewModel(),
     reviewViewModel: ReviewViewModel = viewModel()
 ) {
@@ -168,7 +170,9 @@ fun DestinationDetailScreen(
                         items(reviews) { review ->
                             ReviewCard(
                                 review = review,
-                                onClick = { onNavigateReviewDetail(review.id) }
+                                onClick = { onNavigateReviewDetail(review.id)},
+                                onCommentList= {onNavigateCommentList(review.id)},
+                                onNavigateAddComment = {onNavigateAddComment(review.id)}
                             )
                             Spacer(Modifier.height(8.dp))
                         }

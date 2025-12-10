@@ -13,9 +13,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Comment
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.Comment
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -33,21 +32,26 @@ import com.example.mytravel.domain.model.CommentWithUserName
 import com.example.mytravel.ui.common.UiResult
 import com.example.mytravel.ui.components.CommentItem
 import com.example.mytravel.ui.viewmodel.CommentViewModel
+import com.example.mytravel.ui.viewmodel.ReviewViewModel
 
 @Composable
 fun ListCommentsScreen(
     viewModel: CommentViewModel = viewModel(),
-    onNavigateBack: () -> Unit,
+    viewModelTwo: ReviewViewModel = viewModel(),
+    onNavigateBack: (Long) -> Unit,
     onNavigateAddComment: () -> Unit,
     onNavigateCommentDetail: (id: Long) -> Unit,
     reviewId: Long
 ) {
     val comments by viewModel.comments.collectAsState()
+    val detailState by viewModelTwo.reviewDetail.collectAsState()
+
     LaunchedEffect(Unit) {
         viewModel.getCommentsWithUserName(reviewId)
+        viewModelTwo.loadReviewDetail(reviewId)
     }
 
-    when(comments){
+    when(val state = detailState){
         is UiResult.Loading -> {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -60,6 +64,7 @@ fun ListCommentsScreen(
             }
         }
         is UiResult.Success -> {
+            val review = state.data
             Column (
                 modifier = Modifier
                     .fillMaxSize()
@@ -67,7 +72,7 @@ fun ListCommentsScreen(
             ){
                 Row(
                     modifier = Modifier
-                        .clickable { onNavigateBack() },
+                        .clickable { onNavigateBack(review.destinationId) },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(Icons.Default.ArrowBackIosNew, contentDescription = null, modifier = Modifier.size(20.dp))
@@ -80,17 +85,24 @@ fun ListCommentsScreen(
                 }
                 Spacer(modifier = Modifier.height(20.dp))
 
-                Button(
-                    onClick = { onNavigateAddComment() },
-                ) {
-                    Icon(
-                        Icons.Default.Comment,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(20.dp)
-                            .clickable { onNavigateAddComment() },
-                    )
-                }
+                Text(
+                    text=review.userName,
+                    fontSize = 18.sp,
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text=review.content,
+                    fontSize = 15.sp,
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Icon(
+                    Icons.AutoMirrored.Filled.Comment,
+                    tint = Color.Blue,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .clickable { onNavigateAddComment() },
+                )
                 Spacer(modifier = Modifier.height(20.dp))
                 Text(
                     text = "Komentar",
@@ -108,6 +120,8 @@ fun ListCommentsScreen(
         is UiResult.Error -> {
             Text("Error: ${(comments as UiResult.Error).message}")
         }
+
+        else -> {}
     }
 }
 
