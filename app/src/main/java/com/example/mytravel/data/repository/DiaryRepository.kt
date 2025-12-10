@@ -1,7 +1,7 @@
 package com.example.mytravel.data.repository
 
-import com.example.mytravel.data.remote.SupabaseClient
-import com.example.mytravel.domain.model.DiaryEntry
+import com.example.mytravel.data.model.DiaryEntry
+import com.example.mytravel.data.remote.SupabaseHolder
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.storage.storage
 import kotlinx.serialization.json.Json
@@ -11,7 +11,7 @@ import java.util.Locale
 import java.util.UUID
 
 class DiaryRepository {
-    private val supabase = SupabaseClient.client
+    private val supabase = SupabaseHolder.client
     private val bucketName = "diary-images"
     // Buat instance Json untuk parsing, ignoreUnknownKeys penting untuk stabilitas
     private val json = Json { ignoreUnknownKeys = true }
@@ -54,7 +54,8 @@ class DiaryRepository {
         return try {
             supabase.postgrest["diaries"].update(entry) {
                 filter {
-                    eq("id", entry.id!!)
+                    // Pastikan id tidak null saat update
+                    entry.id?.let { eq("id", it) }
                 }
             }
             true

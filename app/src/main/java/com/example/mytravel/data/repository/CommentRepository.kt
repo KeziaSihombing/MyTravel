@@ -1,7 +1,7 @@
 package com.example.mytravel.data.repository
 
 import android.util.Log
-import com.example.mytravel.data.remote.SupabaseClient
+import com.example.mytravel.data.remote.SupabaseHolder
 import com.example.mytravel.domain.mapper.CommentMapper
 import com.example.mytravel.domain.model.Comment
 import com.example.mytravel.domain.model.CommentDto
@@ -10,18 +10,17 @@ import com.example.mytravel.domain.model.CommentWithUserName
 import io.github.jan.supabase.postgrest.postgrest
 
 class CommentRepository {
-    private val postgrest get() = SupabaseClient.client.postgrest
+    private val postgrest get() = SupabaseHolder.client.postgrest
 
-    suspend fun getCommentsByReviewID(reviewID: Long): List<Comment> {
-        val response = postgrest["komentar"].select {
+    suspend fun getCommentsByReviewID(reviewID: Long): List<Comment>{
+        val response = postgrest["review"].select {
             filter {
-                eq("review_id", reviewID)
+                eq("id", reviewID)
             }
             order("created_at", Order.DESCENDING)
         }
-        Log.d("GET_CommentsByID", "raw=" + (response.data ?: "null"))
         val list = response.decodeList<CommentDto>()
-        return list.map { CommentMapper.map(it) }
+        return list.map{CommentMapper.map(it)}
     }
 
     suspend fun getCommentsWithUserName(reviewID: Long): List<CommentWithUserName> {
@@ -34,6 +33,7 @@ class CommentRepository {
                 userName = profile?.name ?: "Unknown",
                 reviewId = comment.reviewId,
                 komentar = comment.komentar,
+                likes = comment.likes,
                 gambar = comment.gambar,
                 createdAt = comment.createdAt,
                 updatedAt = comment.updatedAt
