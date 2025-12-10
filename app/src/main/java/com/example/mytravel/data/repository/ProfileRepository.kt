@@ -34,4 +34,19 @@ class ProfileRepository {
         return ProfileMapper.map(userDto)
     }
 
+    suspend fun editProfile(id: String, newName: String, newDescription: String): Profile? {
+        val update = postgrest["akun"].update(
+            mapOf(
+                "name" to newName,
+                "description" to newDescription
+            )
+        ) {
+            filter { eq("id", id) }
+            select()
+        }
+        val dto = update.decodeSingle<ProfileDto>()
+        return ProfileMapper.map(dto)
+    }
+
+
 }

@@ -109,6 +109,11 @@ fun AppNavigation(
                     }
                 )
             }
+            composable(
+                AppRoute.addFirstProfile.route
+            ){backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("userId")?: ""
+            }
 
             composable(AppRoute.Register.route) {
                 RegisterScreen(

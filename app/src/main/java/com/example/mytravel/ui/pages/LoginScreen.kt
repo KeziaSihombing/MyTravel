@@ -105,14 +105,14 @@ fun LoginScreen(
         Spacer(Modifier.height(24.dp))
 
         TextButton(onClick = onNavigateRegister) { Text("Belum punya akun? Register") }
+        if (state is UiResult.Error) {
+            Text(
+                text = (state as UiResult.Error).message,
+                color = MaterialTheme.colorScheme.error
+            )
+        }
     }
 
-    if (state is UiResult.Error) {
-        Text(
-            text = (state as UiResult.Error).message,
-            color = MaterialTheme.colorScheme.error
-        )
-    }
 }
 
 
