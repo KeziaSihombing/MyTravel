@@ -17,6 +17,7 @@ import com.example.mytravel.ui.common.UiResult
 import com.example.mytravel.ui.components.NavigationBar
 import com.example.mytravel.ui.pages.ListCommentsScreen
 import com.example.mytravel.ui.pages.AddCommentScreen
+import com.example.mytravel.ui.pages.CommentDetailScreen
 import com.example.mytravel.ui.pages.LoginScreen
 import com.example.mytravel.ui.pages.HomeScreen
 import com.example.mytravel.ui.pages.RegisterScreen
@@ -123,7 +124,8 @@ fun AppNavigation(
                 ListCommentsScreen(
                     reviewId = reviewId,
                     onNavigateBack = { navController.popBackStack() },
-                    onNavigateAddComment = { navController.navigate(AppRoute.AddComment.build(reviewId.toString())) }
+                    onNavigateAddComment = { navController.navigate(AppRoute.AddComment.build(reviewId.toString())) },
+                    onNavigateCommentDetail = {id -> navController.navigate(AppRoute.CommentDetail.build(id.toString()))}
                 )
             }
 
@@ -145,6 +147,19 @@ fun AppNavigation(
                         navController.navigate(AppRoute.ListComment.build(reviewId.toString()))
                     }
                 )
+            }
+
+            composable (
+                AppRoute.CommentDetail.route
+            ){backStackEntry ->
+                val commentId = backStackEntry.arguments?.getString("commentId")?.toLong()?: 0L
+                CommentDetailScreen(
+                    commentId = commentId,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+
             }
         }
     }

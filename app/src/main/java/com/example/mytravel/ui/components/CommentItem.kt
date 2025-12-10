@@ -27,7 +27,11 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun CommentItem(comment: CommentWithUserName, modifier: Modifier = Modifier) {
+fun CommentItem(
+    comment: CommentWithUserName,
+    modifier: Modifier = Modifier,
+    onNavigateCommentDetail: (id: Long) -> Unit
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -56,7 +60,9 @@ fun CommentItem(comment: CommentWithUserName, modifier: Modifier = Modifier) {
                 text = "Lihat Selengkapnya",
                 color = Color.Blue,
                 fontSize = 12.sp,
-                modifier = Modifier.clickable { }
+                modifier = Modifier.clickable {
+                    onNavigateCommentDetail(comment.id)
+                }
             )
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -78,24 +84,4 @@ fun getInitials(text: String): String {
         .map { it.first() }
         .joinToString("")
 }
-
-
-@Preview (showBackground = true)
-@Composable
-fun CommentItemPreview() {
-    val dummyComments = listOf(
-        CommentWithUserName(
-            id = 1L,
-            userId = "john.doe",
-            userName = "John Doe",
-            reviewId = 1001L,
-            komentar = "Selamat pagi semua! Untuk final project ini, pastikan kalian fokus pada aspek usability testing yang mendalam...",
-            gambar = emptyList(),
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
-        )
-    )
-    CommentItem(comment = dummyComments[0])
-}
-
 

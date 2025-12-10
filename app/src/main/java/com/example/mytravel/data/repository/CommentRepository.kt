@@ -21,9 +21,13 @@ class CommentRepository {
     private val storage get() = SupabaseHolder.client.storage.from("comment-images")
 
     private fun resolveImageUrl(path: String?): String? {
-        if (path == null) return null
-        // Bila bucket private gunakan signed URL:
-        return storage.publicUrl(path)
+        if (path.isNullOrBlank()) return null
+
+        return if (path.startsWith("http")) {
+            path
+        } else {
+            storage.publicUrl(path)
+        }
     }
 
     suspend fun getCommentsByReviewID(reviewID: Long): List<Comment> {
@@ -88,7 +92,30 @@ class CommentRepository {
             upsert = true
         )
 
-        // Kembalikan URL yang bisa langsung dipakai di Image()
-        storage.publicUrl(objectName)
+        objectName
     }
+
+    suspend fun getCommentDetail(commentId: Long): CommentWithUserName? {
+        val response = postgrest["komentar"].select {
+            filter { eq("id", commentId) }
+        }
+
+        val dto = response.decodeList<CommentDto>().firstOrNull() ?: return null
+        val comment = CommentMapper.map(dto, ::resolveImageUrl)
+
+        val profile = ProfileRepository().fetchUserByID(comment.userId)
+
+        return CommentWithUserName(
+            id = comment.id,
+            userId = comment.userId,
+            userName = profile?.name ?: "Unknown",
+            reviewId = comment.reviewId,
+            komentar = comment.komentar,
+            gambar = comment.gambar,
+            createdAt = comment.createdAt,
+            updatedAt = comment.updatedAt
+        )
+    }
+
+
 }
