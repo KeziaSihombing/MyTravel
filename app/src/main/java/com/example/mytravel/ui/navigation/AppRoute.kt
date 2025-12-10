@@ -12,6 +12,7 @@ sealed class AppRoute(val route: String) {
     object Profile : AppRoute("profile")
 
     // Screen lainnya
+    // Screen Fitur Comment
     object AddComment : AppRoute("addComment/{reviewId}"){
         fun build(id: String) = "addComment/$id"
     }
@@ -22,4 +23,17 @@ sealed class AppRoute(val route: String) {
         fun build(id:String) = "commentDetail/$id"
     }
 
+    // Screen Destinasi
+    object DestinationList : AppRoute("listDestinations")
+    object DestinationDetail : AppRoute("destinationDetail/{id}") {
+        fun createRoute(id: Long) = "destinationDetail/$id"
+    }
+
+    // Review Routes
+    object ReviewDetail : AppRoute("reviewDetail/{reviewId}") {
+        fun createRoute(reviewId: Long) = "reviewDetail/$reviewId"
+    }
+    object AddReview : AppRoute("addReview/{id}") {
+        fun createRoute(id: Long) = "addReview/$id"
+    }
 }

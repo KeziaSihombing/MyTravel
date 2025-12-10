@@ -9,20 +9,27 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.mytravel.ui.common.UiResult
 import com.example.mytravel.ui.components.NavigationBar
 import com.example.mytravel.ui.pages.ListCommentsScreen
 import com.example.mytravel.ui.pages.AddCommentScreen
 import com.example.mytravel.ui.pages.CommentDetailScreen
+import com.example.mytravel.ui.pages.DestinationDetailScreen
+import com.example.mytravel.ui.pages.DestinationListScreen
+import com.example.mytravel.ui.pages.DetailReviewScreen
+import com.example.mytravel.ui.pages.FormReviewScreen
 import com.example.mytravel.ui.pages.LoginScreen
 import com.example.mytravel.ui.pages.HomeScreen
 import com.example.mytravel.ui.pages.RegisterScreen
 import com.example.mytravel.ui.pages.ProfileScreen
 import com.example.mytravel.ui.viewmodel.AuthViewModel
+import com.example.mytravel.ui.viewmodel.DestinationViewModel
 import com.example.mytravel.ui.viewmodel.HomeViewModel
 import com.example.mytravel.ui.viewmodel.ProfileViewModel
 
@@ -31,7 +38,8 @@ fun AppNavigation(
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = viewModel(),
     profileViewModel: ProfileViewModel = viewModel(),
-    homeViewModel: HomeViewModel = viewModel()
+    homeViewModel: HomeViewModel = viewModel(),
+    destinationViewModel: DestinationViewModel = viewModel()
 ) {
     val navController = rememberNavController()
 
@@ -92,6 +100,7 @@ fun AppNavigation(
             startDestination = AppRoute.Login.route,
             modifier = Modifier.padding(innerPadding)
         ) {
+            // Auth Routes
             composable(AppRoute.Login.route) {
                 LoginScreen(
                     viewModel = authViewModel,
@@ -118,6 +127,7 @@ fun AppNavigation(
                 )
             }
 
+            // Comment Routes
             composable(
                 AppRoute.ListComment.route
             ) { backStackEntry ->
@@ -130,11 +140,6 @@ fun AppNavigation(
                 )
             }
 
-            composable(AppRoute.Home.route) {
-                HomeScreen(
-                    viewModel = homeViewModel
-                )
-            }
             composable (
                 AppRoute.AddComment.route
             ) {backStackEntry ->
@@ -161,6 +166,63 @@ fun AppNavigation(
                     }
                 )
 
+            }
+
+            // Home & Destinations Routes
+            composable(AppRoute.Home.route) {
+                HomeScreen(
+                    onShowMore = { navController.navigate(AppRoute.DestinationList.route) },
+                    onDetail = { id -> navController.navigate(AppRoute.DestinationDetail.createRoute(id)) }
+                )
+            }
+
+            composable(AppRoute.DestinationList.route) {
+                DestinationListScreen(
+                    viewModel = destinationViewModel,
+                    onDetail = { id -> navController.navigate(AppRoute.DestinationDetail.createRoute(id)) }
+                )
+            }
+
+            composable(
+                route = AppRoute.DestinationDetail.route,
+                arguments = listOf(navArgument("id") { type = NavType.LongType })
+            ) { backStackEntry ->
+
+                val destinationId = backStackEntry.arguments!!.getLong("id")
+
+                DestinationDetailScreen(
+                    destinationId = destinationId,
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateAddReview = { navController.navigate(AppRoute.AddReview.createRoute(destinationId)) },
+                    onNavigateReviewDetail = { reviewId ->
+                        navController.navigate(AppRoute.ReviewDetail.createRoute(reviewId))
+                    }
+                )
+            }
+
+            // Review Routes
+            composable(
+                route = AppRoute.ReviewDetail.route,
+                arguments = listOf(navArgument("reviewId") { type = NavType.LongType })
+            ) { backStackEntry ->
+
+                val reviewId = backStackEntry.arguments!!.getLong("reviewId")
+
+                DetailReviewScreen(
+                    reviewId = reviewId,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(
+                route = "addReview/{id}",
+                arguments = listOf(navArgument("id") { type = NavType.LongType })
+            ) {
+                val id = it.arguments!!.getLong("id")
+                FormReviewScreen(
+                    destinationId = id,
+                    onBack = { navController.popBackStack() }
+                )
             }
         }
     }
