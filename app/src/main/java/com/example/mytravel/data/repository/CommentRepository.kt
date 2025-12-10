@@ -67,7 +67,8 @@ class CommentRepository {
             ?: throw IllegalStateException("User not logged in")
 
         // Upload semua gambar dulu
-        val imagePaths: List<String> = imageFiles.map { file -> uploadImage(file, userId) }
+        val imagePaths: List<String> = imageFiles.map { file -> uploadImage(file, userId) }.map{path -> path.substringAfterLast("comment-images/")}
+
 
         val request = NewCommentRequest(
             user_id = userId,

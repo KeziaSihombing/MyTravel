@@ -38,6 +38,8 @@ import com.example.mytravel.ui.viewmodel.CommentViewModel
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import android.util.Log
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @Composable
 fun CommentDetailScreen(
@@ -123,7 +125,12 @@ fun CommentDetailScreen(
                         Text(text = time, fontSize = 12.sp, color = Color.Gray)
                         Spacer(modifier = Modifier.height(6.dp))
                     }
-
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                ) {
                     CommentImages(comment.gambar)
                 }
             }
