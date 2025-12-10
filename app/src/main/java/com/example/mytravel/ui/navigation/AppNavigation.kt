@@ -17,6 +17,7 @@ import com.example.mytravel.ui.common.UiResult
 import com.example.mytravel.ui.components.NavigationBar
 import com.example.mytravel.ui.pages.ListCommentsScreen
 import com.example.mytravel.ui.pages.AddCommentScreen
+import com.example.mytravel.ui.pages.CommentDetailScreen
 import com.example.mytravel.ui.pages.LoginScreen
 import com.example.mytravel.ui.pages.HomeScreen
 import com.example.mytravel.ui.pages.RegisterScreen
@@ -67,7 +68,8 @@ fun AppNavigation(
         AppRoute.Login.route,
         AppRoute.Register.route,
         AppRoute.AddComment.route,
-        AppRoute.ListComment.route
+        AppRoute.ListComment.route,
+        AppRoute.CommentDetail.route
     )
 
     val showBottomBar = hideRoutes.none { route ->
@@ -111,35 +113,20 @@ fun AppNavigation(
                         authViewModel.logout()
                     },
                     onCommentList = { reviewId ->
-                        navController.navigate("listComments/$reviewId")
+                        navController.navigate(AppRoute.ListComment.build(reviewId.toString()))
                     }
                 )
             }
 
             composable(
-                route = "listComments/{reviewId}"
+                AppRoute.ListComment.route
             ) { backStackEntry ->
                 val reviewId = backStackEntry.arguments?.getString("reviewId")?.toLong() ?: 0L
                 ListCommentsScreen(
                     reviewId = reviewId,
                     onNavigateBack = { navController.popBackStack() },
-                    onNavigateAddComment = { navController.navigate("addComment/$reviewId") }
-                )
-            }
-
-
-            composable(
-                route = AppRoute.ListComment.route + "/{reviewId}"
-            ) { backStackEntry ->
-                val reviewId = backStackEntry.arguments?.getString("reviewId")?.toLong() ?: 0L
-                ListCommentsScreen(
-                    reviewId = reviewId,
-                    onNavigateBack = {
-                        navController.popBackStack()
-                    },
-                    onNavigateAddComment = {
-                        navController.navigate("addComment/$reviewId")
-                    }
+                    onNavigateAddComment = { navController.navigate(AppRoute.AddComment.build(reviewId.toString())) },
+                    onNavigateCommentDetail = {id -> navController.navigate(AppRoute.CommentDetail.build(id.toString()))}
                 )
             }
 
@@ -149,7 +136,7 @@ fun AppNavigation(
                 )
             }
             composable (
-                route = "addComment/{reviewId}"
+                AppRoute.AddComment.route
             ) {backStackEntry ->
                 val reviewId = backStackEntry.arguments?.getString("reviewId")?.toLong()?: 0L
                 AddCommentScreen(
@@ -158,12 +145,23 @@ fun AppNavigation(
                         navController.popBackStack()
                     },
                     onDone = {
+                        navController.navigate(AppRoute.ListComment.build(reviewId.toString()))
+                    }
+                )
+            }
+
+            composable (
+                AppRoute.CommentDetail.route
+            ){backStackEntry ->
+                val commentId = backStackEntry.arguments?.getString("commentId")?.toLong()?: 0L
+                CommentDetailScreen(
+                    commentId = commentId,
+                    onNavigateBack = {
                         navController.popBackStack()
                     }
                 )
+
             }
         }
     }
 }
-
-

@@ -12,7 +12,14 @@ sealed class AppRoute(val route: String) {
     object Profile : AppRoute("profile")
 
     // Screen lainnya
-    object ListComment : AppRoute("listComment")
-    object AddComment : AppRoute("addComment")
+    object AddComment : AppRoute("addComment/{reviewId}"){
+        fun build(id: String) = "addComment/$id"
+    }
+    object ListComment : AppRoute("listComment/{reviewId}") {
+        fun build(id: String) = "listComment/$id"
+    }
+    object CommentDetail : AppRoute("commentDetail/{commentId}") {
+        fun build(id:String) = "commentDetail/$id"
+    }
 
 }

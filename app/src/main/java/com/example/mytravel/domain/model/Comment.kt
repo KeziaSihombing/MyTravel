@@ -9,9 +9,17 @@ data class CommentDto (
     val user_id: String,
     val review_id: Long,
     val komentar: String,
-    val gambar: List<String>? = emptyList(),
+    val gambar: List<String> = emptyList(),
     val created_at: String,
     val updated_at: String
+)
+
+@Serializable
+data class NewCommentRequest(
+    val user_id: String,
+    val review_id: Long,
+    val komentar: String,
+    val gambar: List<String> = emptyList()
 )
 
 data class Comment (
