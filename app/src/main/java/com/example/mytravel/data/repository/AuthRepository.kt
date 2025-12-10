@@ -1,7 +1,6 @@
 package com.example.mytravel.data.repository
 
 import android.util.Log
-import coil.util.CoilUtils.result
 import com.example.mytravel.data.remote.SupabaseHolder
 import io.github.jan.supabase.gotrue.Auth
 import io.github.jan.supabase.gotrue.SessionStatus
@@ -9,7 +8,6 @@ import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.gotrue.user.UserSession
 import io.github.jan.supabase.postgrest.postgrest
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onEach
 

@@ -37,12 +37,12 @@ import com.example.mytravel.ui.viewmodel.CommentViewModel
 fun ListCommentsScreen(
     viewModel: CommentViewModel = viewModel(),
     onNavigateBack: () -> Unit,
-    onNavigateAddComment: () -> Unit
+    onNavigateAddComment: () -> Unit,
+    reviewId: Long
 ) {
     val comments by viewModel.comments.collectAsState()
     LaunchedEffect(Unit) {
-        val reviewID = 1.toLong();
-        viewModel.getCommentsWithUserName(reviewID)
+        viewModel.getCommentsWithUserName(reviewId)
     }
 
     when(comments){

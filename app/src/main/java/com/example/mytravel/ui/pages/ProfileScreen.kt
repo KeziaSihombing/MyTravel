@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
 fun ProfileScreen(
     viewModel: ProfileViewModel,
     onLogout: () -> Unit,
-    onCommentList: () -> Unit
+    onCommentList: (Long) -> Unit
 ) {
     val profileState by viewModel.profile.collectAsState()
     LaunchedEffect(Unit) {
@@ -91,8 +91,9 @@ fun ProfileScreen(
                     }
                 }
 
+                val reviewId = 1L;
                 Button(
-                    onClick = {onCommentList()}
+                    onClick = {onCommentList(reviewId)}
                 ) {
                     Text("Lihat Komentar")
                 }

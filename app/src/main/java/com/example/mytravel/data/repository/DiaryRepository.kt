@@ -1,41 +1,38 @@
 package com.example.mytravel.data.repository
 
-import com.example.mytravel.data.model.DiaryEntry
-import com.example.mytravel.data.remote.SupabaseHolder
-import io.github.jan.supabase.postgrest.postgrest
+import android.net.Uri
+import com.example.mytravel.data.remote.SupabaseClient
+import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.storage.storage
-import kotlinx.serialization.json.Json
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
 
 class DiaryRepository {
-    private val supabase = SupabaseHolder.client
+    private val supabase = SupabaseClient.client
     private val bucketName = "diary-images"
-    // Buat instance Json untuk parsing, ignoreUnknownKeys penting untuk stabilitas
-    private val json = Json { ignoreUnknownKeys = true }
 
     suspend fun getAllDiaries(): List<DiaryEntry> {
         return try {
-            val result = supabase.postgrest["diaries"].select()
-            // Dekode JSON secara manual untuk menghindari masalah cache IDE
-            json.decodeFromString<List<DiaryEntry>>(result.data)
+            supabase.from("diaries")
+                .select()
+                .decodeList<DiaryEntry>()
         } catch (e: Exception) {
-            e.printStackTrace()
             emptyList()
         }
     }
 
     suspend fun getDiaryById(id: Int): DiaryEntry? {
         return try {
-            val result = supabase.postgrest["diaries"].select {
-                filter {
-                    eq("id", id)
+            supabase.from("diaries")
+                .select {
+                    filter {
+                        eq("id", id)
+                    }
                 }
-            }
-            // Dekode JSON secara manual untuk menghindari masalah cache IDE
-            json.decodeFromString<List<DiaryEntry>>(result.data).firstOrNull()
+                .decodeSingle<DiaryEntry>()
         } catch (e: Exception) {
             null
         }
@@ -43,7 +40,8 @@ class DiaryRepository {
 
     suspend fun createDiary(entry: DiaryEntry): Boolean {
         return try {
-            supabase.postgrest["diaries"].insert(entry)
+            supabase.from("diaries")
+                .insert(entry)
             true
         } catch (e: Exception) {
             false
@@ -52,12 +50,12 @@ class DiaryRepository {
 
     suspend fun updateDiary(entry: DiaryEntry): Boolean {
         return try {
-            supabase.postgrest["diaries"].update(entry) {
-                filter {
-                    // Pastikan id tidak null saat update
-                    entry.id?.let { eq("id", it) }
+            supabase.from("diaries")
+                .update(entry) {
+                    filter {
+                        eq("id", entry.id!!)
+                    }
                 }
-            }
             true
         } catch (e: Exception) {
             false
@@ -66,11 +64,12 @@ class DiaryRepository {
 
     suspend fun deleteDiary(id: Int): Boolean {
         return try {
-            supabase.postgrest["diaries"].delete {
-                filter {
-                    eq("id", id)
+            supabase.from("diaries")
+                .delete {
+                    filter {
+                        eq("id", id)
+                    }
                 }
-            }
             true
         } catch (e: Exception) {
             false
@@ -80,9 +79,8 @@ class DiaryRepository {
     suspend fun uploadImage(fileBytes: ByteArray, fileName: String): String? {
         return try {
             val uniqueFileName = "${UUID.randomUUID()}_$fileName"
-            val bucket = supabase.storage[bucketName]
-            bucket.upload(uniqueFileName, fileBytes)
-            bucket.publicUrl(uniqueFileName)
+            supabase.storage.from(bucketName).upload(uniqueFileName, fileBytes)
+            supabase.storage.from(bucketName).publicUrl(uniqueFileName)
         } catch (e: Exception) {
             null
         }
@@ -91,7 +89,7 @@ class DiaryRepository {
     suspend fun deleteImage(imageUrl: String): Boolean {
         return try {
             val fileName = imageUrl.substringAfterLast("/")
-            supabase.storage[bucketName].delete(listOf(fileName))
+            supabase.storage.from(bucketName).delete(fileName)
             true
         } catch (e: Exception) {
             false
