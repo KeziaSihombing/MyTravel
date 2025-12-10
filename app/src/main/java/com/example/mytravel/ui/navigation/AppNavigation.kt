@@ -111,35 +111,19 @@ fun AppNavigation(
                         authViewModel.logout()
                     },
                     onCommentList = { reviewId ->
-                        navController.navigate("listComments/$reviewId")
+                        navController.navigate(AppRoute.ListComment.build(reviewId.toString()))
                     }
                 )
             }
 
             composable(
-                route = "listComments/{reviewId}"
+                AppRoute.ListComment.route
             ) { backStackEntry ->
                 val reviewId = backStackEntry.arguments?.getString("reviewId")?.toLong() ?: 0L
                 ListCommentsScreen(
                     reviewId = reviewId,
                     onNavigateBack = { navController.popBackStack() },
-                    onNavigateAddComment = { navController.navigate("addComment/$reviewId") }
-                )
-            }
-
-
-            composable(
-                route = AppRoute.ListComment.route + "/{reviewId}"
-            ) { backStackEntry ->
-                val reviewId = backStackEntry.arguments?.getString("reviewId")?.toLong() ?: 0L
-                ListCommentsScreen(
-                    reviewId = reviewId,
-                    onNavigateBack = {
-                        navController.popBackStack()
-                    },
-                    onNavigateAddComment = {
-                        navController.navigate("addComment/$reviewId")
-                    }
+                    onNavigateAddComment = { navController.navigate(AppRoute.AddComment.build(reviewId.toString())) }
                 )
             }
 
@@ -149,7 +133,7 @@ fun AppNavigation(
                 )
             }
             composable (
-                route = "addComment/{reviewId}"
+                AppRoute.AddComment.route
             ) {backStackEntry ->
                 val reviewId = backStackEntry.arguments?.getString("reviewId")?.toLong()?: 0L
                 AddCommentScreen(
@@ -158,7 +142,7 @@ fun AppNavigation(
                         navController.popBackStack()
                     },
                     onDone = {
-                        navController.popBackStack()
+                        navController.navigate(AppRoute.ListComment.build(reviewId.toString()))
                     }
                 )
             }
