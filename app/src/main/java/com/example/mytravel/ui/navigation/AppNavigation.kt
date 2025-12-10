@@ -68,7 +68,8 @@ fun AppNavigation(
         AppRoute.Login.route,
         AppRoute.Register.route,
         AppRoute.AddComment.route,
-        AppRoute.ListComment.route
+        AppRoute.ListComment.route,
+        AppRoute.CommentDetail.route
     )
 
     val showBottomBar = hideRoutes.none { route ->
