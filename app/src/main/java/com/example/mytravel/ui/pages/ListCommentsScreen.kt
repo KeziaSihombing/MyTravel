@@ -1,6 +1,7 @@
 package com.example.mytravel.ui.pages
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -38,6 +39,7 @@ fun ListCommentsScreen(
     viewModel: CommentViewModel = viewModel(),
     onNavigateBack: () -> Unit,
     onNavigateAddComment: () -> Unit,
+    onNavigateCommentDetail: (id: Long) -> Unit,
     reviewId: Long
 ) {
     val comments by viewModel.comments.collectAsState()
@@ -47,7 +49,15 @@ fun ListCommentsScreen(
 
     when(comments){
         is UiResult.Loading -> {
-            CircularProgressIndicator()
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ){
+                CircularProgressIndicator(
+
+                )
+            }
         }
         is UiResult.Success -> {
             Column (
@@ -89,7 +99,10 @@ fun ListCommentsScreen(
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
-                CommentList((comments as UiResult.Success).data)
+                CommentList(
+                    comments=(comments as UiResult.Success).data,
+                    onNavigateCommentDetail = onNavigateCommentDetail
+                )
             }
         }
         is UiResult.Error -> {
@@ -99,13 +112,21 @@ fun ListCommentsScreen(
 }
 
 @Composable
-fun CommentList(comments: List<CommentWithUserName>) {
+fun CommentList(
+    comments: List<CommentWithUserName>,
+    onNavigateCommentDetail: (id:Long) -> Unit
+) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = 16.dp)
     ) {
         items(comments.size) { index ->
-            CommentItem(comment = comments[index])
+            CommentItem(
+                comment = comments[index],
+                onNavigateCommentDetail = { id ->
+                    onNavigateCommentDetail(id)
+                }
+            )
         }
     }
 }

@@ -15,9 +15,11 @@ sealed class AppRoute(val route: String) {
     object AddComment : AppRoute("addComment/{reviewId}"){
         fun build(id: String) = "addComment/$id"
     }
-
     object ListComment : AppRoute("listComment/{reviewId}") {
         fun build(id: String) = "listComment/$id"
+    }
+    object CommentDetail : AppRoute("commentDetail/{commentId}") {
+        fun build(id:String) = "commentDetail/$id"
     }
 
 }
