@@ -43,7 +43,7 @@ class BudgetViewModel(
     // Fungsi baru untuk mendengarkan SEMUA perubahan di tabel budget
     private fun listenToAllBudgetChanges() {
         viewModelScope.launch {
-            budgetRepository.listenToAnyBudgetChange().collect { 
+            budgetRepository.listenToAnyBudgetChange().collect {
                 _updateRencanaTotals()
             }
         }
@@ -72,7 +72,7 @@ class BudgetViewModel(
 
     // Fungsi ini dipanggil dari ListBudgetScreen saat pertama kali dibuka
     fun loadInitialData() {
-        viewModelScope.launch { 
+        viewModelScope.launch {
             _updateRencanaTotals()
         }
     }
@@ -81,7 +81,7 @@ class BudgetViewModel(
         viewModelScope.launch {
             _budgetItems.value = UiResult.Loading
             budgetRepository.listenToBudgetChanges(rencanaId)
-                .catch { e -> 
+                .catch { e ->
                     _budgetItems.value = UiResult.Error(e.message ?: "Gagal mendengarkan perubahan")
                 }
                 .collect { budgetList ->
