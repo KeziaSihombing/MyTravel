@@ -75,13 +75,14 @@ class DiaryRepository {
                 }
 
             val dto = response.decodeSingle<DiaryEntryDto>()
-            DiaryMapper.map(dto)
+            DiaryMapper.map(dto) // <-- ini yang bikin image_url jadi full URL
 
         } catch (e: Exception) {
-            Log.e("GET_DIARY_BY_ID", "error = ${e.message}")
+            Log.e("GET_DIARY_BY_ID", "error=${e.message}")
             null
         }
     }
+
 
 
     suspend fun deleteDiary(id: Int): Boolean {
