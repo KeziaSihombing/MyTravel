@@ -57,6 +57,7 @@ fun AppNavigation(
             }
         } else {
             profileViewModel.getProfile()
+            navController.navigate(AppRoute.Home.route)
         }
     }
 
