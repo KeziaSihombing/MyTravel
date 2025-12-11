@@ -1,13 +1,7 @@
 package com.example.mytravel.domain.model
 
-
-
-
 import kotlinx.serialization.Serializable
 import java.time.Instant
-
-
-
 
 @Serializable
 data class DiaryEntryDto(
@@ -19,8 +13,6 @@ data class DiaryEntryDto(
     val created_at: String,
     val updated_at: String? = null
 )
-
-
 
 
 // Domain Model untuk digunakan di aplikasi

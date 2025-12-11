@@ -1,13 +1,9 @@
 package com.example.mytravel.domain.mapper
 
 
-
-
 import com.example.mytravel.domain.model.DiaryEntry
 import com.example.mytravel.domain.model.DiaryEntryDto
 import java.time.Instant
-
-
 
 
 object DiaryMapper {
@@ -22,8 +18,6 @@ object DiaryMapper {
             updatedAt = dto.updated_at?.let { Instant.parse(it) }
         )
     }
-
-
 
 
     fun mapList(dtoList: List<DiaryEntryDto>): List<DiaryEntry> {

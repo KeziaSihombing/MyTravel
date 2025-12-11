@@ -49,8 +49,6 @@ fun BuatDiaryScreen(
     val saveSuccess by viewModel.saveSuccess.collectAsState()
 
 
-
-
     val context = LocalContext.current
 
 

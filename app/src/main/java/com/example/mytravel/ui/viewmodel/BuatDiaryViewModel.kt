@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mytravel.data.remote.SupabaseHolder
 import com.example.mytravel.data.repository.DiaryRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -92,44 +93,44 @@ class BuatDiaryViewModel : ViewModel() {
     }
 
 
-
-
     fun saveDiary() {
         viewModelScope.launch {
             _isSaving.value = true
 
+            val userId = SupabaseHolder.session()?.user?.id
+            if (userId == null) {
+                _saveSuccess.value = false
+                _isSaving.value = false
+                return@launch
+            }
 
+            // 1. Upload image dulu ke storage jika ada
+            var imagePath: String? = null
+            val imageBytes = _imageBytes.value
 
-
-            var imageUrl: String? = null
-            if (_imageBytes.value != null) {
-                imageUrl = repository.uploadImage(
-                    _imageBytes.value!!,
-                    "diary_${System.currentTimeMillis()}.jpg"
+            if (imageBytes != null) {
+                imagePath = repository.uploadImage(
+                    imageBytes,
+                    userId // folder user
                 )
             }
 
-
-
-
+            // 2. Buat entry
             val entry = DiaryEntry(
                 title = _title.value,
                 content = _content.value,
-                imageUrl = imageUrl,
+                imageUrl = imagePath,   // sekarang simpan PATH, bukan URL
                 color = _selectedColor.value,
                 createdAt = repository.getCurrentTimestamp()
             )
 
-
-
-
+            // 3. Simpan ke Postgrest
             val success = repository.createDiary(entry)
+
             _isSaving.value = false
             _saveSuccess.value = success
         }
     }
-
-
 
 
     fun resetSaveSuccess() {
