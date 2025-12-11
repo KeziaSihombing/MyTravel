@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -27,12 +28,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mytravel.domain.model.Profile
 import com.example.mytravel.ui.common.UiResult
 import com.example.mytravel.ui.viewmodel.ProfileViewModel
 
 @Composable
 fun EditProfileScreen(
-    viewModel: ProfileViewModel = viewModel(),
+    viewModel: ProfileViewModel,
+    profileState: UiResult<List<Profile>>,
     home: () -> Unit,
     userId: String,
 ){
@@ -46,61 +49,75 @@ fun EditProfileScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ){
-        Text(
-            text = "Selamat Datang di MyTravel",
-            fontSize = 24.sp
-        )
-        Spacer(modifier = Modifier.height(15.dp))
-        Text(
-            text = "Isi keterangan diri Anda",
-            fontSize = 18.sp
-        )
-        Spacer(modifier = Modifier.height(15.dp))
-
-        OutlinedTextField(
-            name,
-            {name = it},
-            label = { Text("Nama") },
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Masukkan nama Anda(Nama ini akan terlihat oleh user lain)") }
-        )
-
-        Spacer(Modifier.height(16.dp))
-
-        OutlinedTextField(
-            description,
-            {description = it},
-            label = { Text("Description") },
-            modifier = Modifier.fillMaxWidth().heightIn(min = 150.dp),
-            placeholder = {Text("Masukkan deskripsi akun Anda")}
-        )
-
-        Spacer(Modifier.height(16.dp))
-
-        Button(
-            onClick = {viewModel.editProfile(userId, name, description) },
-            enabled = name.isNotBlank() && state !is UiResult.Loading,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A))
-        ) {
-            Text(if(state is UiResult.Loading) "Loading..." else "Masuk", color = Color.White, fontSize = 16.sp)
+    when(profileState){
+        is UiResult.Error -> {
+            Text("Error: ${(profileState as UiResult.Error).message}")
         }
-    }
-    if (state is UiResult.Error) {
-        Text(
-            text = (state as UiResult.Error).message,
-            color = MaterialTheme.colorScheme.error
-        )
+
+        UiResult.Loading -> {
+            CircularProgressIndicator()
+        }
+
+        is UiResult.Success -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ){
+                Text(
+                    text = "Selamat Datang di MyTravel",
+                    fontSize = 24.sp
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Isi keterangan diri Anda",
+                    fontSize = 18.sp
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+
+                OutlinedTextField(
+                    name,
+                    {name = it},
+                    label = { Text("Nama") },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("Masukkan nama Anda(Nama ini akan terlihat oleh user lain)") }
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    description,
+                    {description = it},
+                    label = { Text("Description") },
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 150.dp),
+                    placeholder = {Text("Masukkan deskripsi akun Anda")}
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                Button(
+                    onClick = {viewModel.editProfile(userId, name, description) },
+                    enabled = name.isNotBlank(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A))
+                ) {
+                    Text(text ="Simpan", color = Color.White, fontSize = 16.sp)
+                }
+            }
+            if (state is UiResult.Error) {
+                Text(
+                    text = (state as UiResult.Error).message,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
+        }
+
     }
 }
 

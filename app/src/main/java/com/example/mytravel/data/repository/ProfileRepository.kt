@@ -35,6 +35,7 @@ class ProfileRepository {
     }
 
     suspend fun editProfile(id: String, newName: String, newDescription: String): Profile? {
+        Log.d("EDIT_PROFILE", "Updating id=$id name=$newName description=$newDescription")
         val update = postgrest["akun"].update(
             mapOf(
                 "name" to newName,
@@ -44,9 +45,18 @@ class ProfileRepository {
             filter { eq("id", id) }
             select()
         }
-        val dto = update.decodeSingle<ProfileDto>()
+        val list = update.decodeList<ProfileDto>()
+        Log.d("EDIT_PROFILE_RAW", update.data.toString())
+        if (list.isEmpty()) {
+            Log.e("EDIT_PROFILE", "Update succeeded but returned NO ROWS")
+            return null
+        }
+        val dto = list.first()
+        Log.d("EDIT_PROFILE_DTO", dto.toString())
+
         return ProfileMapper.map(dto)
     }
+
 
 
 }

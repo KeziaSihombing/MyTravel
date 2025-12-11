@@ -20,6 +20,9 @@ class ProfileViewModel(
     private val _editing = MutableStateFlow<UiResult<Profile>>(UiResult.Loading)
     val editing: StateFlow<UiResult<Profile>> = _editing
 
+    var firstTimeHandled = false
+
+
     fun getProfile(){
         _profile.value = UiResult.Loading
 
@@ -46,6 +49,7 @@ class ProfileViewModel(
 
                 if (profile != null) {
                     _editing.value = UiResult.Success(profile)
+                    firstTimeHandled = true
                 } else {
                     _editing.value = UiResult.Error("Profile tidak ditemukan")
                 }

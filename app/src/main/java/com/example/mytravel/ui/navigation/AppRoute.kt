@@ -12,7 +12,7 @@ sealed class AppRoute(val route: String) {
     object Profile : AppRoute("profile")
 
     // Screen lainnya
-    object addFirstProfile : AppRoute("addFirstProfile/{userId}"){
+    object AddFirstProfile : AppRoute("addFirstProfile/{userId}"){
         fun build(id: String) = "addFirstProfile/$id"
     }
     // Screen Fitur Comment

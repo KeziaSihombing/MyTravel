@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.mytravel.domain.model.Profile
 import com.example.mytravel.ui.common.UiResult
 import com.example.mytravel.ui.components.NavigationBar
 import com.example.mytravel.ui.pages.ListCommentsScreen
@@ -23,6 +24,7 @@ import com.example.mytravel.ui.pages.CommentDetailScreen
 import com.example.mytravel.ui.pages.DestinationDetailScreen
 import com.example.mytravel.ui.pages.DestinationListScreen
 import com.example.mytravel.ui.pages.DetailReviewScreen
+import com.example.mytravel.ui.pages.EditProfileScreen
 import com.example.mytravel.ui.pages.FormReviewScreen
 import com.example.mytravel.ui.pages.LoginScreen
 import com.example.mytravel.ui.pages.HomeScreen
@@ -44,40 +46,52 @@ fun AppNavigation(
     val navController = rememberNavController()
 
     val isAuthenticated by authViewModel.isAuthenticated.collectAsStateWithLifecycle()
+    val profileState by profileViewModel.profile.collectAsStateWithLifecycle()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-
-
-    LaunchedEffect(isAuthenticated, navController) {
-        // Hanya lakukan auto-navigate jika user tidak sedang di layar auth
-        val authScreens = listOf(AppRoute.Login.route, AppRoute.Register.route)
-
-        Log.d("AppNavigation", "DEBUG: isAuthenticated = $isAuthenticated")
-
+    LaunchedEffect(isAuthenticated) {
         if (!isAuthenticated) {
-            Log.d("AppNavigation", "DEBUG: User NOT authenticated → Login")
-            // ...paksa navigasi ke Login dan bersihkan semua back stack
             navController.navigate(AppRoute.Login.route) {
-                popUpTo(navController.graph.id) {
-                    inclusive = true
-                }
+                popUpTo(0) { inclusive = true }
             }
-        }
-        else {
-            Log.d("AppNavigation", "DEBUG: User authenticated → Home")
-            navController.navigate(AppRoute.Home.route) {
-                popUpTo(AppRoute.Login.route) { inclusive = true }
-            }
+        } else {
+            profileViewModel.getProfile()
         }
     }
+
+    LaunchedEffect(profileState, isAuthenticated) {
+        if (!isAuthenticated) return@LaunchedEffect
+        if (profileViewModel.firstTimeHandled) return@LaunchedEffect
+
+        when(profileState){
+            is UiResult.Success -> {
+                val profile = (profileState as UiResult.Success<List<Profile>>).data.first()
+
+                if (profile.name == "Default Name") {
+                    profileViewModel.firstTimeHandled = true
+                    navController.navigate(AppRoute.AddFirstProfile.build(profile.id)) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                } else {
+                    profileViewModel.firstTimeHandled = true
+                    navController.navigate(AppRoute.Home.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            }
+            else -> {}
+        }
+    }
+
 
     val hideRoutes = listOf(
         AppRoute.Login.route,
         AppRoute.Register.route,
         AppRoute.AddComment.route,
         AppRoute.ListComment.route,
-        AppRoute.CommentDetail.route
+        AppRoute.CommentDetail.route,
+        AppRoute.AddFirstProfile.route,
     )
 
     val showBottomBar = hideRoutes.none { route ->
@@ -109,11 +123,16 @@ fun AppNavigation(
                     }
                 )
             }
-            composable(
-                AppRoute.addFirstProfile.route
-            ){backStackEntry ->
-                val userId = backStackEntry.arguments?.getString("userId")?: ""
+            composable(AppRoute.AddFirstProfile.route) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("userId") ?: ""
+                EditProfileScreen(
+                    viewModel = profileViewModel,
+                    profileState = profileState,
+                    userId = userId,
+                    home = { navController.navigate(AppRoute.Home.route) }
+                )
             }
+
 
             composable(AppRoute.Register.route) {
                 RegisterScreen(

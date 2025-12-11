@@ -38,11 +38,11 @@ fun ProfileScreen(
     viewModel: ProfileViewModel,
     onLogout: () -> Unit,
 ) {
-    val profileState by viewModel.profile.collectAsState()
     LaunchedEffect(Unit) {
         viewModel.getProfile()
     }
 
+    val profileState by viewModel.profile.collectAsState()
     when (profileState) {
         is UiResult.Loading -> {
             Column(
