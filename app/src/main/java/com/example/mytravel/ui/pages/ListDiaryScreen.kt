@@ -27,15 +27,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.mytravel.ui.viewmodel.ListDiaryViewModel
 import com.example.mytravel.domain.model.DiaryEntry
-import com.example.mytravel.ui.viewmodel.DetailDiaryViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListDiaryScreen(
     onNavigateToBuat: () -> Unit,
+    onNavigateToDetail: (Int) -> Unit,
     viewModel: ListDiaryViewModel = viewModel(),
-    viewModel2: DetailDiaryViewModel = viewModel()
 ) {
     val diaries by viewModel.diaries.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -100,11 +99,7 @@ fun ListDiaryScreen(
                                         viewModel.deleteDiary(idSafe)
                                     }
                                 },
-                                onClick = {
-                                    diary.id?.let { idSafe ->
-                                        viewModel2.loadDiary(idSafe)
-                                    }
-                                }
+                                onClick = onNavigateToDetail
                             )
                         }
                     }
@@ -131,7 +126,10 @@ fun DiaryCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp),
+            .height(200.dp)
+            .clickable {
+                diary.id?.let { onClick(it) }
+            },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
@@ -234,8 +232,6 @@ fun DiaryCard(
         )
     }
 }
-
-
 
 
 fun parseColor(colorString: String): Color {
