@@ -114,7 +114,7 @@ fun ListCommentsScreen(
                 when (val result = comments) {
                     is UiResult.Error -> {
                         val msg = result.message
-                        Text("Error: ${result}")
+                        Text("Error: ${msg}")
                     }
                     is UiResult.Success -> {
                         CommentList(
