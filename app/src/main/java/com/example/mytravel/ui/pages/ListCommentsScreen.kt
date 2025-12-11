@@ -111,10 +111,30 @@ fun ListCommentsScreen(
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
-                CommentList(
-                    comments=(comments as UiResult.Success).data,
-                    onNavigateCommentDetail = onNavigateCommentDetail
-                )
+                when (val result = comments) {
+                    is UiResult.Error -> {
+                        val msg = result.message
+                        Text("Error: ${result}")
+                    }
+                    is UiResult.Success -> {
+                        CommentList(
+                            comments = result.data,
+                            onNavigateCommentDetail = onNavigateCommentDetail
+                        )
+                    }
+                    is UiResult.Loading -> {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ){
+                            CircularProgressIndicator(
+
+                            )
+                        }
+                    }
+                }
+
+
             }
         }
         is UiResult.Error -> {
