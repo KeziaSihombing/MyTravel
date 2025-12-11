@@ -1,118 +1,78 @@
 package com.example.mytravel.ui.pages
 
-import android.widget.Toast
-import androidx.compose.runtime.Composable
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mytravel.ui.common.UiResult
 import com.example.mytravel.ui.viewmodel.AuthViewModel
-
 
 @Composable
 fun LoginScreen(
     viewModel: AuthViewModel,
-    onNavigateRegister: () -> Unit,
-){
-    val state by viewModel.authState.collectAsState()
+    onNavigateRegister: () -> Unit
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-
+    val loginState by viewModel.loginState.collectAsState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Selamat Datang!",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Text(
-            text = "Kembali ke MyTravel",
-            color = Color(0xFF6A1B9A),
-            fontSize = 14.sp
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
         OutlinedTextField(
-            email,
-            {email = it},
+            value = email,
+            onValueChange = { email = it },
             label = { Text("Email") },
             modifier = Modifier.fillMaxWidth()
         )
-
-        Spacer(Modifier.height(16.dp))
-
+        Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
-            password,
-            {password = it},
+            value = password,
+            onValueChange = { password = it },
             label = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation(),
-            singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
+        Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(Modifier.height(8.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Absolute.Right,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Forgot Password?",
-                color = Color(0xFF6A1B9A),
-                fontSize = 14.sp
-            )
+        when (loginState) {
+            is UiResult.Loading -> {
+                CircularProgressIndicator()
+            }
+            is UiResult.Error -> {
+                Text(text = (loginState as UiResult.Error).message)
+            }
+            else -> {}
         }
-
-        Spacer(Modifier.height(24.dp))
 
         Button(
             onClick = { viewModel.login(email, password) },
-            enabled = state !is UiResult.Loading,
-            modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-            shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A))
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(if(state is UiResult.Loading) "Loading..." else "Masuk", color = Color.White, fontSize = 16.sp)
+            Text("Login")
         }
-        Spacer(Modifier.height(24.dp))
-
-        TextButton(onClick = onNavigateRegister) { Text("Belum punya akun? Register") }
-        if (state is UiResult.Error) {
-            Text(
-                text = (state as UiResult.Error).message,
-                color = MaterialTheme.colorScheme.error
-            )
+        TextButton(onClick = onNavigateRegister) {
+            Text("Don't have an account? Register")
         }
     }
-
 }
-
-

@@ -4,64 +4,64 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mytravel.data.repository.AuthRepository
 import com.example.mytravel.ui.common.UiResult
-import io.github.jan.supabase.gotrue.SessionStatus
+import io.github.jan.supabase.gotrue.auth
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class AuthViewModel(
     private val repo: AuthRepository = AuthRepository()
-) : ViewModel() {
+): ViewModel(){
 
-    private val _authState = MutableStateFlow<UiResult<Boolean>>(UiResult.Success(repo.currentSession() != null))
-    val authState: StateFlow<UiResult<Boolean>> = _authState
+    private val _isAuthenticated = MutableStateFlow(false)
+    val isAuthenticated = _isAuthenticated.asStateFlow()
 
-    val isAuthenticated: StateFlow<Boolean> = repo.sessionStatus
-        .map { status -> status is SessionStatus.Authenticated }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = false
-        )
+    private val _loginState = MutableStateFlow<UiResult<Unit>?>(null)
+    val loginState = _loginState.asStateFlow()
 
-    fun register(email: String, password: String, name: String, description: String) {
-        _authState.value = UiResult.Loading
+    private val _registerState = MutableStateFlow<UiResult<Unit>?>(null)
+    val registerState = _registerState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            _isAuthenticated.value = repo.isAuthenticated()
+        }
+    }
+
+    fun getUserId(): String? {
+        return com.example.mytravel.data.remote.SupabaseHolder.client.auth.currentUserOrNull()?.id
+    }
+
+    fun login(email: String, pass: String) {
+        _loginState.value = UiResult.Loading
         viewModelScope.launch {
             try {
-                val user = repo.register(email, password)
-                _authState.value = UiResult.Success(true)
+                repo.login(email, pass)
+                _loginState.value = UiResult.Success(Unit)
+                _isAuthenticated.value = true
             } catch (e: Exception) {
-                _authState.value = UiResult.Error(e.message ?: "Register gagal")
+                _loginState.value = UiResult.Error(e.message ?: "Gagal login")
             }
         }
     }
 
-    fun login(email: String, password: String) {
-        _authState.value = UiResult.Loading
+    // Ubah fungsi register untuk menerima nama
+    fun register(name: String, email: String, pass: String) {
+        _registerState.value = UiResult.Loading
         viewModelScope.launch {
             try {
-                val user = repo.login(email, password)
-                _authState.value = UiResult.Success(true)
+                repo.register(name, email, pass)
+                _registerState.value = UiResult.Success(Unit)
             } catch (e: Exception) {
-                _authState.value = UiResult.Error(e.message ?: "Login gagal")
+                _registerState.value = UiResult.Error(e.message ?: "Gagal register")
             }
         }
     }
 
     fun logout() {
         viewModelScope.launch {
-            try {
-                repo.logout()
-                _authState.value = UiResult.Success(false)
-            }
-            catch (e: Exception) {
-                _authState.value = UiResult.Error(e.message ?: "Logout gagal")
-            }}
-
+            repo.logout()
+            _isAuthenticated.value = false
+        }
     }
-
-
 }

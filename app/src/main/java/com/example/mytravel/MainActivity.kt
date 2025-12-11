@@ -7,7 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.mytravel.ui.navigation.AppNavigation
-import com.example.mytravel.ui.pages.BudgetScreen
 import com.example.mytravel.ui.pages.BuatDiaryScreen
 import com.example.mytravel.ui.pages.HomeScreen
 import com.example.mytravel.ui.pages.LoginScreen

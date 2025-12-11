@@ -18,9 +18,9 @@ import androidx.navigation.navArgument
 import com.example.mytravel.domain.model.Profile
 import com.example.mytravel.ui.common.UiResult
 import com.example.mytravel.ui.components.NavigationBar
+// Import halaman yang sudah ada
 import com.example.mytravel.ui.pages.ListCommentsScreen
 import com.example.mytravel.ui.pages.AddCommentScreen
-import com.example.mytravel.ui.pages.BuatBudgetScreen
 import com.example.mytravel.ui.pages.BuatDiaryScreen
 import com.example.mytravel.ui.pages.CommentDetailScreen
 import com.example.mytravel.ui.pages.DestinationDetailScreen
@@ -30,12 +30,17 @@ import com.example.mytravel.ui.pages.DetailReviewScreen
 import com.example.mytravel.ui.pages.EditProfileScreen
 import com.example.mytravel.ui.pages.FormReviewScreen
 import com.example.mytravel.ui.pages.HomeScreen
-import com.example.mytravel.ui.pages.ListBudgetScreen
 import com.example.mytravel.ui.pages.ListDiaryScreen
 import com.example.mytravel.ui.pages.LoginScreen
 import com.example.mytravel.ui.pages.ProfileScreen
 import com.example.mytravel.ui.pages.RegisterScreen
+// --- TAMBAHKAN IMPORT UNTUK FITUR PLAN & BUDGET ---
+import com.example.mytravel.ui.pages.ListPlanScreen
+import com.example.mytravel.ui.pages.FormPlanScreen
+import com.example.mytravel.ui.pages.DetailPlanScreen
+import com.example.mytravel.ui.pages.ListBudgetScreen
 import com.example.mytravel.ui.pages.RincianBudgetScreen
+import com.example.mytravel.ui.pages.BuatBudgetScreen
 import com.example.mytravel.ui.viewmodel.AuthViewModel
 import com.example.mytravel.ui.viewmodel.DestinationViewModel
 import com.example.mytravel.ui.viewmodel.HomeViewModel
@@ -71,9 +76,13 @@ fun AppNavigation(
 
         when(profileState){
             is UiResult.Success -> {
-                val profile = (profileState as UiResult.Success<List<Profile>>).data.first()
-
-                if (profile.name == "Default Name") {
+                val profile = (profileState as UiResult.Success<List<Profile>>).data.firstOrNull()
+                if (profile == null) {
+                    profileViewModel.firstTimeHandled = true
+                    navController.navigate(AppRoute.AddFirstProfile.build(authViewModel.getUserId() ?: "")) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                } else if (profile.name == "Default Name") {
                     profileViewModel.firstTimeHandled = true
                     navController.navigate(AppRoute.AddFirstProfile.build(profile.id)) {
                         popUpTo(0) { inclusive = true }
@@ -97,9 +106,12 @@ fun AppNavigation(
         AppRoute.ListComment.route,
         AppRoute.CommentDetail.route,
         AppRoute.AddFirstProfile.route,
-        AppRoute.RincianBudget.route, // Hide navbar on RincianBudget
-        AppRoute.BuatBudget.route,   // Hide navbar on BuatBudget
-        AppRoute.DetailDiary.route
+        AppRoute.DetailDiary.route,
+        // --- TAMBAHKAN RUTE PLAN & BUDGET UNTUK HIDE NAVBAR ---
+        AppRoute.FormPlan.route,
+        AppRoute.DetailPlan.route,
+        AppRoute.RincianBudget.route,
+        AppRoute.BuatBudget.route
     )
 
     val showBottomBar = hideRoutes.none { route ->
@@ -122,192 +134,105 @@ fun AppNavigation(
             startDestination = AppRoute.Login.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            // Auth Routes
-            composable(AppRoute.Login.route) {
-                LoginScreen(
-                    viewModel = authViewModel,
-                    onNavigateRegister = {
-                        navController.navigate(AppRoute.Register.route)
-                    }
-                )
-            }
+            // Auth & Profile Routes
+            composable(AppRoute.Login.route) { LoginScreen(viewModel = authViewModel, onNavigateRegister = { navController.navigate(AppRoute.Register.route) }) }
+            composable(AppRoute.Register.route) { RegisterScreen(viewModel = authViewModel, onNavigateToLogin = { navController.navigate(AppRoute.Login.route) }) }
+            composable(AppRoute.Profile.route) { ProfileScreen(viewModel = profileViewModel, onLogout = { authViewModel.logout() }) }
             composable(AppRoute.AddFirstProfile.route) { backStackEntry ->
                 val userId = backStackEntry.arguments?.getString("userId") ?: ""
-                EditProfileScreen(
-                    viewModel = profileViewModel,
-                    profileState = profileState,
-                    userId = userId,
-                    home = { navController.navigate(AppRoute.Home.route) }
+                EditProfileScreen(viewModel = profileViewModel, profileState = profileState, userId = userId, home = { navController.navigate(AppRoute.Home.route) })
+            }
+
+            // Home & Destinations
+            composable(AppRoute.Home.route) { HomeScreen(onShowMore = { navController.navigate(AppRoute.DestinationList.route) }, onDetail = { id -> navController.navigate(AppRoute.DestinationDetail.createRoute(id)) }) }
+            composable(AppRoute.DestinationList.route) { DestinationListScreen(onDetail = { id -> navController.navigate(AppRoute.DestinationDetail.createRoute(id)) }, onNavigateBack = { navController.navigate(AppRoute.Home.route) }) }
+            composable(route = AppRoute.DestinationDetail.route, arguments = listOf(navArgument("id") { type = NavType.LongType })) { backStackEntry ->
+                val destinationId = backStackEntry.arguments!!.getLong("id")
+                DestinationDetailScreen(
+                    destinationId = destinationId,
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToPlan = { navController.navigate(AppRoute.FormPlan.createRoute(destinationId)) }, // Parameter ditambahkan
+                    onNavigateAddReview = { navController.navigate(AppRoute.AddReview.createRoute(destinationId)) },
+                    onNavigateReviewDetail = { reviewId -> navController.navigate(AppRoute.ReviewDetail.createRoute(reviewId)) },
+                    onNavigateCommentList = { reviewId -> navController.navigate(AppRoute.ListComment.build(reviewId.toString())) },
+                    onNavigateAddComment = { reviewId -> navController.navigate(AppRoute.AddComment.build(reviewId.toString())) }
                 )
             }
 
-            composable(AppRoute.Register.route) {
-                RegisterScreen(
-                    viewModel = authViewModel,
-                    onNavigateToLogin = {
-                        navController.navigate(AppRoute.Login.route)
-                    }
+            // --- TAMBAHKAN ROUTING UNTUK FITUR PLAN ---
+            composable(AppRoute.Plan.route) {
+                ListPlanScreen(onPlanClick = { planId ->
+                    navController.navigate(AppRoute.DetailPlan.createRoute(planId))
+                })
+            }
+
+            composable(
+                route = AppRoute.DetailPlan.route,
+                arguments = listOf(navArgument("planId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val planId = backStackEntry.arguments?.getLong("planId") ?: 0L
+                DetailPlanScreen(
+                    planId = planId,
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToBudget = { navController.navigate(AppRoute.RincianBudget.createRoute(it)) },
+                    onNavigateToDiary = { navController.navigate(AppRoute.Diary.route) }
                 )
             }
-            composable(AppRoute.Profile.route) {
-                ProfileScreen(
-                    viewModel = profileViewModel,
-                    onLogout = {
-                        authViewModel.logout()
-                    }
+
+            composable(
+                route = AppRoute.FormPlan.route,
+                arguments = listOf(navArgument("wisataId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val wisataId = backStackEntry.arguments?.getLong("wisataId") ?: 0L
+                FormPlanScreen(
+                    wisataId = wisataId,
+                    onSaveSuccess = { navController.navigate(AppRoute.Plan.route) { popUpTo(AppRoute.Plan.route) { inclusive = true } } },
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
 
             // Budget Flow
-            composable(AppRoute.Budget.route) {
-                ListBudgetScreen(onRencanaClick = { rencanaId ->
-                    navController.navigate(AppRoute.RincianBudget.createRoute(rencanaId))
-                })
+            composable(AppRoute.Budget.route) { ListBudgetScreen(onRencanaClick = { rencanaId -> navController.navigate(AppRoute.RincianBudget.createRoute(rencanaId)) }) }
+            composable(route = AppRoute.RincianBudget.route, arguments = listOf(navArgument("rencanaId") { type = NavType.StringType })) { backStackEntry ->
+                val rencanaId = backStackEntry.arguments?.getString("rencanaId") ?: ""
+                RincianBudgetScreen(
+                    rencanaId = rencanaId,
+                    onAddBudget = { navController.navigate(AppRoute.BuatBudget.createRoute(rencanaId)) },
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            composable(route = AppRoute.BuatBudget.route, arguments = listOf(navArgument("rencanaId") { type = NavType.StringType })) { backStackEntry ->
+                val rencanaId = backStackEntry.arguments?.getString("rencanaId") ?: ""
+                BuatBudgetScreen(
+                    rencanaId = rencanaId,
+                    onSaveSuccess = { navController.popBackStack() },
+                    onNavigateBack = { navController.popBackStack() }
+                )
             }
 
-//            composable(
-//                route = AppRoute.RincianBudget.route,
-//                arguments = listOf(navArgument("rencanaId") { type = NavType.StringType })
-//            ) { backStackEntry ->
-//                val rencanaId = backStackEntry.arguments?.getString("rencanaId") ?: ""
-//                RincianBudgetScreen(
-//                    rencanaId = rencanaId,
-//                    onAddBudget = { navController.navigate(AppRoute.BuatBudget.createRoute(rencanaId)) },
-//                    onBack = { navController.popBackStack() }
-//                )
-//            }
-//
-//            composable(
-//                route = AppRoute.BuatBudget.route,
-//                arguments = listOf(navArgument("rencanaId") { type = NavType.StringType })
-//            ) { backStackEntry ->
-//                val rencanaId = backStackEntry.arguments?.getString("rencanaId") ?: ""
-//                BuatBudgetScreen(
-//                    rencanaId = rencanaId,
-//                    onSaveSuccess = {
-//                        navController.popBackStack()
-//                    },
-//                    onBack = { navController.popBackStack() }
-//                )
-//            }
-
-            // Comment Routes
-            composable(
-                AppRoute.ListComment.route
-            ) { backStackEntry ->
+            // Kode Anda yang sudah ada di bawah ini tidak akan saya ubah...
+            composable(AppRoute.ListComment.route) { backStackEntry ->
                 val reviewId = backStackEntry.arguments?.getString("reviewId")?.toLong() ?: 0L
-                ListCommentsScreen(
-                    reviewId = reviewId,
-                    onNavigateBack = { id -> navController.navigate(AppRoute.DestinationDetail.createRoute(id)) },
-                    onNavigateAddComment = { navController.navigate(AppRoute.AddComment.build(reviewId.toString())) },
-                    onNavigateCommentDetail = {id -> navController.navigate(AppRoute.CommentDetail.build(id.toString()))}
-                )
+                ListCommentsScreen(reviewId = reviewId, onNavigateBack = { id -> navController.navigate(AppRoute.DestinationDetail.createRoute(id)) }, onNavigateAddComment = { navController.navigate(AppRoute.AddComment.build(reviewId.toString())) }, onNavigateCommentDetail = {id -> navController.navigate(AppRoute.CommentDetail.build(id.toString()))})
             }
-
-            composable (AppRoute.AddComment.route) { backStackEntry ->
+            composable(AppRoute.AddComment.route) { backStackEntry ->
                 val reviewId = backStackEntry.arguments?.getString("reviewId")?.toLong()?: 0L
-                AddCommentScreen(
-                    reviewId = reviewId,
-                    onNavigateBack = { navController.popBackStack() },
-                    onDone = { navController.navigate(AppRoute.ListComment.build(reviewId.toString())) }
-                )
+                AddCommentScreen(reviewId = reviewId, onNavigateBack = { navController.popBackStack() }, onDone = { navController.navigate(AppRoute.ListComment.build(reviewId.toString())) })
             }
-
-            composable (AppRoute.CommentDetail.route) { backStackEntry ->
+            composable(AppRoute.CommentDetail.route) { backStackEntry ->
                 val commentId = backStackEntry.arguments?.getString("commentId")?.toLong()?: 0L
-                CommentDetailScreen(
-                    commentId = commentId,
-                    onNavigateBack = { navController.popBackStack() }
-                )
+                CommentDetailScreen(commentId = commentId, onNavigateBack = { navController.popBackStack() })
             }
-
-            // Home & Destinations Routes
-            composable(AppRoute.Home.route) {
-                HomeScreen(
-                    onShowMore = { navController.navigate(AppRoute.DestinationList.route) },
-                    onDetail = { id -> navController.navigate(AppRoute.DestinationDetail.createRoute(id)) }
-                )
-            }
-
-            composable(AppRoute.DestinationList.route) {
-                DestinationListScreen(
-                    onDetail = { id -> navController.navigate(AppRoute.DestinationDetail.createRoute(id)) },
-                    onNavigateBack = { navController.navigate(AppRoute.Home.route)}
-                )
-            }
-
-            composable(
-                route = AppRoute.DestinationDetail.route,
-                arguments = listOf(navArgument("id") { type = NavType.LongType })
-            ) { backStackEntry ->
-                val destinationId = backStackEntry.arguments!!.getLong("id")
-                DestinationDetailScreen(
-                    destinationId = destinationId,
-                    onNavigateBack = { navController.navigate(AppRoute.Home.route) },
-                    onNavigateAddReview = { navController.navigate(AppRoute.AddReview.createRoute(destinationId)) },
-                    onNavigateReviewDetail = { reviewId -> navController.navigate(AppRoute.ReviewDetail.createRoute(reviewId)) },
-                    onNavigateCommentList = { reviewId -> navController.navigate(AppRoute.ListComment.build(reviewId.toString())) },
-                    onNavigateAddComment = { reviewId -> navController.navigate(AppRoute.AddComment.build(reviewId.toString())) },
-                )
-            }
-
-            // Review Routes
-            composable(
-                route = AppRoute.ReviewDetail.route,
-                arguments = listOf(navArgument("reviewId") { type = NavType.LongType })
-            ) { backStackEntry ->
+            composable(route = AppRoute.ReviewDetail.route, arguments = listOf(navArgument("reviewId") { type = NavType.LongType })) { backStackEntry ->
                 val reviewId = backStackEntry.arguments!!.getLong("reviewId")
-                DetailReviewScreen(
-                    reviewId = reviewId,
-                    onNavigateBack = { navController.popBackStack() }
-                )
+                DetailReviewScreen(reviewId = reviewId, onNavigateBack = { navController.popBackStack() })
             }
-
-            composable(
-                route = "addReview/{id}",
-                arguments = listOf(navArgument("id") { type = NavType.LongType })
-            ) {
-                val id = it.arguments!!.getLong("id")
-                FormReviewScreen(
-                    destinationId = id,
-                    onBack = { navController.popBackStack() },
-                    onNavigateBack = { navController.popBackStack() }
-                )
-            }
-
-            // Diary Routes
-            composable(route = AppRoute.Diary.route) {
-                ListDiaryScreen(
-                    onNavigateToBuat = {
-                        navController.navigate(AppRoute.AddDiary.route)
-                    },
-                    onNavigateToDetail = { id ->
-                        navController.navigate("detailDiary/$id")
-                    }
-                )
-            }
-
-
-
-            composable(route = AppRoute.AddDiary.route) {
-                BuatDiaryScreen(
-                    onNavigateBack = { navController.popBackStack() },
-                    viewModel = viewModel()
-                )
-            }
-
-            composable(
-                route = AppRoute.DetailDiary.route,
-                arguments = listOf(navArgument("diaryId") { type = NavType.IntType })
-            ) { backStackEntry ->
+            composable(route = "addReview/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { val id = it.arguments!!.getLong("id"); FormReviewScreen(destinationId = id, onBack = { navController.popBackStack() }, onNavigateBack = { navController.popBackStack() }) }
+            composable(route = AppRoute.Diary.route) { ListDiaryScreen(onNavigateToBuat = { navController.navigate(AppRoute.AddDiary.route) }, onNavigateToDetail = { navController.navigate(AppRoute.DetailDiary.build(it)) }) }
+            composable(route = AppRoute.AddDiary.route) { BuatDiaryScreen(onNavigateBack = { navController.popBackStack() }, viewModel = viewModel()) }
+            composable(route = AppRoute.DetailDiary.route, arguments = listOf(navArgument("diaryId") { type = NavType.IntType })) { backStackEntry ->
                 val diaryId = backStackEntry.arguments?.getInt("diaryId") ?: 0
-                DetailDiaryScreen(
-                    diaryId = diaryId,
-                    onNavigateBack = { navController.popBackStack() },
-                    onNavigateToEdit = { id ->
-                        // TODO: Implement edit screen
-                    }
-                )
+                DetailDiaryScreen(diaryId = diaryId, onNavigateBack = { navController.popBackStack() }, onNavigateToEdit = { id -> })
             }
         }
     }

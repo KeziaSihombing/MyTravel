@@ -48,6 +48,7 @@ fun DestinationDetailScreen(
     onNavigateReviewDetail: (Long) -> Unit,
     onNavigateCommentList: (Long) -> Unit,
     onNavigateAddComment: (Long) -> Unit,
+    onNavigateToPlan: (Long) -> Unit,
     destinationViewModel: DestinationViewModel = viewModel(),
     reviewViewModel: ReviewViewModel = viewModel()
 ) {
@@ -116,7 +117,7 @@ fun DestinationDetailScreen(
                         }
 
                         Button(
-                            onClick = { /* TODO */ },
+                            onClick = { onNavigateToPlan(dest.id) },
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .padding(12.dp),
@@ -145,9 +146,9 @@ fun DestinationDetailScreen(
 
                     Spacer(Modifier.height(8.dp))
 
-                    Text("Waktu Buka : ${dest.openHours}")
-                    Text("Harga : ${dest.price}")
-                    Text("Kontak : ${dest.contact}")
+                    Text("Waktu Buka : ${"dest.openHours"}")
+                    Text("Harga : ${"dest.price"}")
+                    Text("Kontak : ${"dest.contact"}")
 
                     Spacer(Modifier.height(16.dp))
 

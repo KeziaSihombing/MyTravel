@@ -11,6 +11,14 @@ sealed class AppRoute(val route: String) {
     object Budget : AppRoute("budget")
     object Profile : AppRoute("profile")
 
+    // --- RUTE FITUR PLAN ---
+    object FormPlan : AppRoute("formPlan/{wisataId}") {
+        fun createRoute(wisataId: Long) = "formPlan/$wisataId"
+    }
+    object DetailPlan : AppRoute("detailPlan/{planId}") {
+        fun createRoute(planId: Long) = "detailPlan/$planId"
+    }
+
     // Budget Routes
     object ListBudget : AppRoute("listBudget")
     object RincianBudget : AppRoute("rincianBudget/{rencanaId}") {
