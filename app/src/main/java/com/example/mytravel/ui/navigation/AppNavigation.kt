@@ -101,7 +101,10 @@ fun AppNavigation(
 
             composable(AppRoute.Register.route) {
                 RegisterScreen(
-                    viewModel = authViewModel
+                    viewModel = authViewModel,
+                    onNavigateToLogin = {
+                        navController.navigate(AppRoute.Login.route)
+                    }
                 )
             }
             composable(AppRoute.Profile.route) {
