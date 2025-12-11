@@ -20,6 +20,7 @@ import com.example.mytravel.ui.common.UiResult
 import com.example.mytravel.ui.components.NavigationBar
 import com.example.mytravel.ui.pages.ListCommentsScreen
 import com.example.mytravel.ui.pages.AddCommentScreen
+import com.example.mytravel.ui.pages.BuatDiaryScreen
 import com.example.mytravel.ui.pages.CommentDetailScreen
 import com.example.mytravel.ui.pages.DestinationDetailScreen
 import com.example.mytravel.ui.pages.DestinationListScreen
@@ -28,6 +29,7 @@ import com.example.mytravel.ui.pages.EditProfileScreen
 import com.example.mytravel.ui.pages.FormReviewScreen
 import com.example.mytravel.ui.pages.LoginScreen
 import com.example.mytravel.ui.pages.HomeScreen
+import com.example.mytravel.ui.pages.ListDiaryScreen
 import com.example.mytravel.ui.pages.RegisterScreen
 import com.example.mytravel.ui.pages.ProfileScreen
 import com.example.mytravel.ui.viewmodel.AuthViewModel
@@ -248,6 +250,21 @@ fun AppNavigation(
                     destinationId = id,
                     onBack = { navController.popBackStack() },
                     onNavigateBack = { navController.popBackStack()}
+                )
+            }
+
+            composable(route = AppRoute.Diary.route) {
+                ListDiaryScreen(
+                    onNavigateToBuat = {
+                        navController.navigate(AppRoute.AddDiary.route)
+                    }
+                )
+            }
+
+            composable(route= AppRoute.AddDiary.route){
+                BuatDiaryScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    viewModel = viewModel()
                 )
             }
         }
