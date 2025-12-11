@@ -17,6 +17,12 @@ class ProfileViewModel(
     private val _profile = MutableStateFlow<UiResult<List<Profile>>>(UiResult.Loading)
     val profile: StateFlow<UiResult<List<Profile>>> = _profile
 
+    private val _editing = MutableStateFlow<UiResult<Profile>>(UiResult.Loading)
+    val editing: StateFlow<UiResult<Profile>> = _editing
+
+    var firstTimeHandled = false
+
+
     fun getProfile(){
         _profile.value = UiResult.Loading
 
@@ -30,6 +36,26 @@ class ProfileViewModel(
                 }
             } catch (e: Exception) {
                 _profile.value = UiResult.Error(e.message ?: "Gagal memuat")
+            }
+        }
+    }
+
+    fun editProfile(id: String, name: String, description: String) {
+        _editing.value = UiResult.Loading
+
+        viewModelScope.launch {
+            try {
+                val profile = repo.editProfile(id, name, description)
+
+                if (profile != null) {
+                    _editing.value = UiResult.Success(profile)
+                    firstTimeHandled = true
+                } else {
+                    _editing.value = UiResult.Error("Profile tidak ditemukan")
+                }
+
+            } catch (e: Exception) {
+                _editing.value = UiResult.Error(e.message ?: "Gagal memuat")
             }
         }
     }

@@ -1,5 +1,8 @@
 package com.example.mytravel.ui.pages
 
+
+
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,8 +25,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.mytravel.domain.model.DiaryEntry
 import com.example.mytravel.ui.viewmodel.ListDiaryViewModel
+import com.example.mytravel.domain.model.DiaryEntry
+
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,6 +39,9 @@ fun ListDiaryScreen(
 ) {
     val diaries by viewModel.diaries.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+
+
+
 
     Scaffold(
         topBar = {
@@ -74,7 +83,8 @@ fun ListDiaryScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(diaries) { diary ->
+                    items(diaries.size) { index ->
+                        val diary = diaries[index]  // ambil diary dari list pakai index
                         DiaryCard(
                             diary = diary,
                             onDelete = { viewModel.deleteDiary(diary.id!!) }
@@ -86,12 +96,18 @@ fun ListDiaryScreen(
     }
 }
 
+
+
+
 @Composable
 fun DiaryCard(
     diary: DiaryEntry,
     onDelete: () -> Unit
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
+
+
+
 
     Card(
         modifier = Modifier
@@ -124,6 +140,9 @@ fun DiaryCard(
                     Spacer(modifier = Modifier.height(8.dp))
                 }
 
+
+
+
                 // Title
                 Text(
                     text = diary.title,
@@ -133,7 +152,13 @@ fun DiaryCard(
                     overflow = TextOverflow.Ellipsis
                 )
 
+
+
+
                 Spacer(modifier = Modifier.height(4.dp))
+
+
+
 
                 // Content
                 Text(
@@ -143,6 +168,9 @@ fun DiaryCard(
                     overflow = TextOverflow.Ellipsis
                 )
             }
+
+
+
 
             // Delete button
             IconButton(
@@ -159,6 +187,9 @@ fun DiaryCard(
             }
         }
     }
+
+
+
 
     if (showDeleteDialog) {
         AlertDialog(
@@ -181,6 +212,9 @@ fun DiaryCard(
         )
     }
 }
+
+
+
 
 fun parseColor(colorString: String): Color {
     return try {

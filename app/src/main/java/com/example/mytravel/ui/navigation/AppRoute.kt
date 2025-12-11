@@ -12,12 +12,35 @@ sealed class AppRoute(val route: String) {
     object Profile : AppRoute("profile")
 
     // Screen lainnya
+    object AddFirstProfile : AppRoute("addFirstProfile/{userId}"){
+        fun build(id: String) = "addFirstProfile/$id"
+    }
+    // Screen Fitur Comment
     object AddComment : AppRoute("addComment/{reviewId}"){
         fun build(id: String) = "addComment/$id"
     }
-
     object ListComment : AppRoute("listComment/{reviewId}") {
         fun build(id: String) = "listComment/$id"
     }
+    object CommentDetail : AppRoute("commentDetail/{commentId}") {
+        fun build(id:String) = "commentDetail/$id"
+    }
 
+    // Screen Destinasi
+    object DestinationList : AppRoute("listDestinations")
+    object DestinationDetail : AppRoute("destinationDetail/{id}") {
+        fun createRoute(id: Long) = "destinationDetail/$id"
+    }
+
+    // Review Routes
+    object ReviewDetail : AppRoute("reviewDetail/{reviewId}") {
+        fun createRoute(reviewId: Long) = "reviewDetail/$reviewId"
+    }
+    object AddReview : AppRoute("addReview/{id}") {
+        fun createRoute(id: Long) = "addReview/$id"
+    }
+
+    object AddDiary : AppRoute("addDiary/{reviewId}"){
+        fun build(id: String) = "addDiary/$id"
+    }
 }
