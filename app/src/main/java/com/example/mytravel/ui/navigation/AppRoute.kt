@@ -43,4 +43,7 @@ sealed class AppRoute(val route: String) {
     object AddDiary : AppRoute("addDiary/{reviewId}"){
         fun build(id: String) = "addDiary/$id"
     }
+    object DetailDiary: AppRoute("detailDiary/{diaryId}"){
+        fun build(id: Int) = "detailDiary/$id"
+    }
 }

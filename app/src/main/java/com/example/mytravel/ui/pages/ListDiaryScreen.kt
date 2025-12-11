@@ -27,15 +27,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.mytravel.ui.viewmodel.ListDiaryViewModel
 import com.example.mytravel.domain.model.DiaryEntry
-
-
+import com.example.mytravel.ui.viewmodel.DetailDiaryViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListDiaryScreen(
     onNavigateToBuat: () -> Unit,
-    viewModel: ListDiaryViewModel = viewModel()
+    viewModel: ListDiaryViewModel = viewModel(),
+    viewModel2: DetailDiaryViewModel = viewModel()
 ) {
     val diaries by viewModel.diaries.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -99,6 +99,11 @@ fun ListDiaryScreen(
                                     diary.id?.let { idSafe ->
                                         viewModel.deleteDiary(idSafe)
                                     }
+                                },
+                                onClick = {
+                                    diary.id?.let { idSafe ->
+                                        viewModel2.loadDiary(idSafe)
+                                    }
                                 }
                             )
                         }
@@ -115,7 +120,8 @@ fun ListDiaryScreen(
 @Composable
 fun DiaryCard(
     diary: DiaryEntry,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onClick: (id: Int) -> Unit,
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -138,6 +144,9 @@ fun DiaryCard(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(12.dp)
+                    .clickable{
+                        onClick(diary.id!!)
+                    }
             ) {
                 // Image
                 if (!diary.imageUrl.isNullOrEmpty()) {

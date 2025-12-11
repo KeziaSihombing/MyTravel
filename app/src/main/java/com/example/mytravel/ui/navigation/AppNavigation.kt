@@ -24,6 +24,7 @@ import com.example.mytravel.ui.pages.BuatDiaryScreen
 import com.example.mytravel.ui.pages.CommentDetailScreen
 import com.example.mytravel.ui.pages.DestinationDetailScreen
 import com.example.mytravel.ui.pages.DestinationListScreen
+import com.example.mytravel.ui.pages.DetailDiaryScreen
 import com.example.mytravel.ui.pages.DetailReviewScreen
 import com.example.mytravel.ui.pages.EditProfileScreen
 import com.example.mytravel.ui.pages.FormReviewScreen
@@ -270,6 +271,25 @@ fun AppNavigation(
                     viewModel = viewModel()
                 )
             }
+
+            composable(
+                route = AppRoute.DetailDiary.route,
+                arguments = listOf(
+                    navArgument("diaryId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val diaryId = backStackEntry.arguments?.getInt("diaryId") ?: 0
+                DetailDiaryScreen(
+                    diaryId = diaryId,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onNavigateToEdit = { id ->
+                        // TODO: Implement edit screen
+                    }
+                )
+            }
         }
     }
+
 }
