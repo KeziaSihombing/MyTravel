@@ -1,42 +1,81 @@
 package com.example.mytravel.data.repository
 
-import com.example.mytravel.data.model.BudgetItem
 import com.example.mytravel.data.remote.SupabaseHolder
+import com.example.mytravel.domain.model.Budget
+import com.example.mytravel.domain.model.Rencana 
 import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.realtime.PostgresAction
+import io.github.jan.supabase.realtime.channel
+import io.github.jan.supabase.realtime.postgresChangeFlow
+import io.github.jan.supabase.realtime.realtime
 import io.github.jan.supabase.storage.storage
-import kotlinx.serialization.json.Json
+import io.github.jan.supabase.gotrue.auth
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onStart
+import java.io.File
 
 class BudgetRepository {
 
-    // Buat instance Json untuk parsing, ignoreUnknownKeys penting untuk stabilitas
-    private val json = Json { ignoreUnknownKeys = true }
+    suspend fun fetchAllRencana(): List<Rencana> {
+        return SupabaseHolder.client.postgrest["rencana"].select().decodeList()
+    }
 
-    suspend fun getBudgetItems(userId: String): List<BudgetItem> {
-        return try {
-            // 1. Dapatkan hasil mentah dari Supabase
-            val result = SupabaseHolder.client.postgrest["budget"].select {
-                filter {
-                    eq("user_id", userId)
-                }
+    // Fungsi baru untuk mengambil SEMUA item budget
+    suspend fun fetchAllBudgets(): List<Budget> {
+        return SupabaseHolder.client.postgrest["budget"].select().decodeList()
+    }
+
+    suspend fun fetchBudgetsForRencana(rencanaId: Long): List<Budget> {
+        return SupabaseHolder.client.postgrest["budget"].select {
+            filter {
+                eq("rencana_id", rencanaId)
             }
-            // 2. Dekode String JSON secara manual
-            json.decodeFromString<List<BudgetItem>>(result.data)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            emptyList()
+        }.decodeList<Budget>()
+    }
+
+    fun listenToBudgetChanges(rencanaId: Long): Flow<List<Budget>> {
+        return SupabaseHolder.client.realtime
+            .channel("budget-rencana-$rencanaId")
+            .postgresChangeFlow<PostgresAction>(schema = "public") { 
+                table = "budget"
+                filter = "rencana_id=eq.$rencanaId"
+            }.mapLatest { 
+                fetchBudgetsForRencana(rencanaId)
+            }.onStart { 
+                emit(fetchBudgetsForRencana(rencanaId)) 
+            }
+    }
+
+    // Listener baru untuk semua perubahan di tabel budget
+    fun listenToAnyBudgetChange(): Flow<Unit> {
+        return SupabaseHolder.client.realtime
+            .channel("public:budget")
+            .postgresChangeFlow<PostgresAction>(schema = "public") {
+                table = "budget"
+            }.map { } // Hanya sebagai sinyal, tidak perlu data
+    }
+
+    suspend fun addBudgetToRencana(rencanaId: Long, title: String, nominal: Double, attachment: File?): Budget {
+        val userId = SupabaseHolder.client.auth.currentUserOrNull()?.id
+        require(userId != null) { "User not logged in" }
+
+        var imageUrl: String? = null
+        if (attachment != null) {
+            val filePath = "$userId/${System.currentTimeMillis()}_${attachment.name}"
+            SupabaseHolder.client.storage["budget_images"].upload(filePath, attachment.readBytes())
+            imageUrl = SupabaseHolder.client.storage["budget_images"].publicUrl(filePath)
         }
-    }
 
-    suspend fun addBudgetItem(budgetItem: BudgetItem) {
-        SupabaseHolder.client.postgrest["budget"].insert(budgetItem)
-    }
+        val newBudget = Budget(
+            userId = userId,
+            rencanaId = rencanaId, 
+            title = title,
+            nominal = nominal,
+            imageUrl = imageUrl
+        )
 
-    suspend fun uploadBudgetImage(imageBytes: ByteArray, userId: String): String {
-        val fileName = "$userId/${System.currentTimeMillis()}.jpg"
-        val bucket = SupabaseHolder.client.storage["budget_images"]
-        // Upload file
-        bucket.upload(path = fileName, data = imageBytes, upsert = true)
-        // Dapatkan URL publiknya
-        return bucket.publicUrl(fileName)
+        return SupabaseHolder.client.postgrest["budget"].insert(newBudget) { select() }.decodeSingle<Budget>()
     }
 }

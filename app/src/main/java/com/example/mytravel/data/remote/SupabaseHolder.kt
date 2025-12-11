@@ -5,6 +5,7 @@ import io.github.jan.supabase.gotrue.Auth
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.gotrue.user.UserSession
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.realtime.Realtime
 import io.github.jan.supabase.storage.Storage
 
 object SupabaseHolder {
@@ -16,8 +17,9 @@ object SupabaseHolder {
         supabaseKey = SUPABASE_KEY
     ) {
         install(Auth)
-        install(Postgrest.Companion)
-        install(Storage.Companion)
+        install(Postgrest)
+        install(Storage)
+        install(Realtime)
     }
 
     fun session(): UserSession? {

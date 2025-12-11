@@ -3,8 +3,13 @@ package com.example.mytravel.data.repository
 
 
 
+import android.util.Log
 import com.example.mytravel.data.remote.SupabaseHolder
+import com.example.mytravel.domain.mapper.CommentMapper
+import com.example.mytravel.domain.mapper.DiaryMapper
+import com.example.mytravel.domain.model.CommentDto
 import com.example.mytravel.domain.model.DiaryEntry
+import com.example.mytravel.domain.model.DiaryEntryDto
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Order
@@ -50,14 +55,14 @@ class DiaryRepository {
     }
 
     suspend fun getAllDiaries(): List<DiaryEntry> {
-        return try {
-            postgrest["diaries"]
-                .select()
-                .decodeList<DiaryEntry>()
-        } catch (e: Exception) {
-            emptyList()
+        val response = postgrest["diary_entries"].select {
+            order("created_at", Order.DESCENDING)
         }
+        Log.d("GET_ALL_DIARIES", "raw=" + (response.data ?: "null"))
+        val list = response.decodeList<DiaryEntryDto>()
+        return DiaryMapper.mapList(list)
     }
+
 
     suspend fun getDiaryById(id: Int): DiaryEntry? {
         return try {

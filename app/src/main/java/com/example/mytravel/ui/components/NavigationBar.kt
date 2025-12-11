@@ -2,7 +2,6 @@ package com.example.mytravel.ui.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.EventNote
-import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.NoteAlt
@@ -15,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -31,7 +29,7 @@ fun NavigationBar(
         tonalElevation = 8.dp
     ) {
         NavigationBarItem(
-            selected = selectedItem == "Beranda",
+            selected = selectedItem == AppRoute.Home.route,
             onClick = {
                 navController.navigate(AppRoute.Home.route)
             },
@@ -40,7 +38,7 @@ fun NavigationBar(
             colors = navItemColors()
         )
         NavigationBarItem(
-            selected = selectedItem == "Plan",
+            selected = selectedItem == AppRoute.Plan.route,
             onClick = {
 //                navController.navigate(AppRoute.Plan.route)
             },
@@ -49,7 +47,7 @@ fun NavigationBar(
             colors = navItemColors()
         )
         NavigationBarItem(
-            selected = selectedItem == "Diary",
+            selected = selectedItem == AppRoute.Diary.route,
             onClick = {
                 navController.navigate(AppRoute.Diary.route)
             },
@@ -58,16 +56,16 @@ fun NavigationBar(
             colors = navItemColors()
         )
         NavigationBarItem(
-            selected = selectedItem == "Budget",
+            selected = selectedItem == AppRoute.Budget.route,
             onClick = {
-//                navController.navigate(AppRoute.Budget.route)
+                navController.navigate(AppRoute.Budget.route)
             },
             icon = { Icon(Icons.Default.MonetizationOn, contentDescription = "Budget") },
             label = { Text("Budget") },
             colors = navItemColors()
         )
         NavigationBarItem(
-            selected = selectedItem == "Profil",
+            selected = selectedItem == AppRoute.Profile.route,
             onClick = {
                 navController.navigate(AppRoute.Profile.route)
             },
@@ -91,5 +89,5 @@ private fun navItemColors() = NavigationBarItemDefaults.colors(
 @Preview(showBackground = true)
 @Composable
 fun NavigationBarPreview(){
-    NavigationBar(navController = NavController(LocalContext.current), selectedItem = "Beranda")
+    NavigationBar(navController = NavController(LocalContext.current), selectedItem = AppRoute.Home.route)
 }
