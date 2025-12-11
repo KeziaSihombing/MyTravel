@@ -173,7 +173,7 @@ fun AppNavigation(
                 RincianBudgetScreen(
                     rencanaId = rencanaId,
                     onAddBudget = { navController.navigate(AppRoute.BuatBudget.createRoute(rencanaId)) },
-                    onBack = { navController.popBackStack() }
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
 
@@ -187,7 +187,7 @@ fun AppNavigation(
                     onSaveSuccess = {
                         navController.popBackStack()
                     },
-                    onBack = { navController.popBackStack() }
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
 

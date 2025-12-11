@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,7 +41,7 @@ import com.example.mytravel.ui.viewmodel.BudgetViewModel
 fun RincianBudgetScreen(
     rencanaId: String,
     onAddBudget: (String) -> Unit,
-    onBack: () -> Unit,
+    onNavigateBack: () -> Unit,
     budgetViewModel: BudgetViewModel = viewModel()
 ) {
     val id = rencanaId.toLongOrNull()
@@ -54,7 +55,17 @@ fun RincianBudgetScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Rincian Budget") })
+            TopAppBar(
+                title = { Text("Rincian Budget") },
+                navigationIcon = { // Tombol kembali ditambahkan di sini
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Kembali"
+                        )
+                    }
+                }
+            )
         }
     ) { paddingValues ->
         Column(
