@@ -22,6 +22,10 @@ class CommentViewModel(
     private val _adding = MutableStateFlow<UiResult<Comment>?>(null)
     val adding: StateFlow<UiResult<Comment>?> = _adding
 
+    private val _commentDetail = MutableStateFlow<UiResult<CommentWithUserName>>(UiResult.Loading)
+    val commentDetail: StateFlow<UiResult<CommentWithUserName>> = _commentDetail
+
+
     // Ambil komentar beserta nama user
     fun getCommentsWithUserName(reviewID: Long) {
         _comments.value = UiResult.Loading
@@ -32,7 +36,7 @@ class CommentViewModel(
                 if (comments.isNotEmpty()) {
                     _comments.value = UiResult.Success(comments)
                 } else {
-                    UiResult.Error("No comments found")
+                    _comments.value = UiResult.Success(emptyList())
                 }
             } catch (e: Exception) {
                 _comments.value = UiResult.Error(e.message ?: "Gagal memuat komentar")
@@ -60,7 +64,23 @@ class CommentViewModel(
         }
     }
 
-    fun getCommentDetail() {
-        // Bisa diimplementasikan nanti bila perlu detail komentar tertentu
+    suspend fun getCommentDetail(commentId: Long) {
+        Log.d("GET_COMMENT_DETAIL", "CALLED - commentId=$commentId")
+        _commentDetail.value = UiResult.Loading
+
+        try {
+            val comment = commentRepo.getCommentDetail(commentId)
+            Log.d("GET_COMMENT_DETAIL", "SUCCESS: $comment")
+
+            if (comment != null) {
+                _commentDetail.value = UiResult.Success(comment)
+            } else {
+                _commentDetail.value = UiResult.Error("Komentar tidak ditemukan")
+            }
+
+        } catch (e: Exception) {
+            Log.e("GET_COMMENT_DETAIL", "ERROR", e)
+            _commentDetail.value = UiResult.Error(e.message ?: "Unknown error")
+        }
     }
 }

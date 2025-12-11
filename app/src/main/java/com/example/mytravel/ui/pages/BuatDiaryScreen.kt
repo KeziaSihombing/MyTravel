@@ -1,5 +1,8 @@
 package com.example.mytravel.ui.pages
 
+
+
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -29,6 +32,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.mytravel.ui.viewmodel.BuatDiaryViewModel
 
+
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BuatDiaryScreen(
@@ -42,7 +48,11 @@ fun BuatDiaryScreen(
     val isSaving by viewModel.isSaving.collectAsState()
     val saveSuccess by viewModel.saveSuccess.collectAsState()
 
+
     val context = LocalContext.current
+
+
+
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -55,12 +65,18 @@ fun BuatDiaryScreen(
         }
     }
 
+
+
+
     LaunchedEffect(saveSuccess) {
         if (saveSuccess) {
             onNavigateBack()
             viewModel.resetSaveSuccess()
         }
     }
+
+
+
 
     Scaffold(
         topBar = {
@@ -81,6 +97,8 @@ fun BuatDiaryScreen(
                                 modifier = Modifier.size(24.dp),
                                 strokeWidth = 2.dp
                             )
+
+
                         } else {
                             Icon(
                                 Icons.Default.Check,
@@ -113,7 +131,13 @@ fun BuatDiaryScreen(
                 singleLine = true
             )
 
+
+
+
             Spacer(modifier = Modifier.height(16.dp))
+
+
+
 
             // Color Picker
             Text(
@@ -123,12 +147,21 @@ fun BuatDiaryScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
+
+
+
             ColorPicker(
                 selectedColor = selectedColor,
                 onColorSelected = { viewModel.updateColor(it) }
             )
 
+
+
+
             Spacer(modifier = Modifier.height(16.dp))
+
+
+
 
             // Image Section
             Row(
@@ -148,6 +181,9 @@ fun BuatDiaryScreen(
                 }
             }
 
+
+
+
             imageUri?.let { uri ->
                 Spacer(modifier = Modifier.height(8.dp))
                 AsyncImage(
@@ -161,7 +197,13 @@ fun BuatDiaryScreen(
                 )
             }
 
+
+
+
             Spacer(modifier = Modifier.height(16.dp))
+
+
+
 
             // Content Input
             OutlinedTextField(
@@ -177,6 +219,9 @@ fun BuatDiaryScreen(
     }
 }
 
+
+
+
 @Composable
 fun ColorPicker(
     selectedColor: String,
@@ -191,6 +236,9 @@ fun ColorPicker(
         "#00FF00" to Color.Green,
         "#FF6347" to Color(0xFFFF6347)
     )
+
+
+
 
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp)

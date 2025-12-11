@@ -51,7 +51,7 @@ fun NavigationBar(
         NavigationBarItem(
             selected = selectedItem == "Diary",
             onClick = {
-//                navController.navigate(AppRoute.Diary.route)
+                navController.navigate(AppRoute.Diary.route)
             },
             icon = { Icon(Icons.Default.NoteAlt, contentDescription = "Diary") },
             label = { Text("Diary") },

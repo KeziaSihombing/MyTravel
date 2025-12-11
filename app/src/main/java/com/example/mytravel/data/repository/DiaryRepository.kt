@@ -1,22 +1,57 @@
 package com.example.mytravel.data.repository
 
-import android.net.Uri
-import com.example.mytravel.data.remote.SupabaseClient
+
+
+
+import com.example.mytravel.data.remote.SupabaseHolder
+import com.example.mytravel.domain.model.DiaryEntry
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.query.Order
 import io.github.jan.supabase.storage.storage
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import java.time.Instant
+
+
+
 
 class DiaryRepository {
-    private val supabase = SupabaseClient.client
-    private val bucketName = "diary-images"
+    private val postgrest get() = SupabaseHolder.client.postgrest
+    private val storage get() = SupabaseHolder.client.storage.from("diary-images")
+
+    private fun resolveImageUrl(path: String?): String? {
+        if (path == null) return null
+        return storage.publicUrl(path) // atau signed URL kalau private
+    }
+
+    suspend fun uploadImage(bytes: ByteArray, uid: String): String {
+        val fileName = "$uid/${UUID.randomUUID()}.jpg"
+        storage.upload(fileName, bytes)
+        return fileName // simpan path-nya saja
+    }
+
+    suspend fun createDiary(entry: DiaryEntry): Boolean {
+        val userId = SupabaseHolder.session()?.user?.id ?: return false
+
+        val map = mapOf(
+            "user_id" to userId,
+            "title" to entry.title,
+            "content" to entry.content,
+            "image_url" to entry.imageUrl,
+            "color" to entry.color,
+            "created_at" to entry.createdAt
+        )
+
+        postgrest["diary_entries"].insert(map)
+        return true
+    }
 
     suspend fun getAllDiaries(): List<DiaryEntry> {
         return try {
-            supabase.from("diaries")
+            postgrest["diaries"]
                 .select()
                 .decodeList<DiaryEntry>()
         } catch (e: Exception) {
@@ -26,7 +61,7 @@ class DiaryRepository {
 
     suspend fun getDiaryById(id: Int): DiaryEntry? {
         return try {
-            supabase.from("diaries")
+            postgrest["diaries"]
                 .select {
                     filter {
                         eq("id", id)
@@ -38,33 +73,9 @@ class DiaryRepository {
         }
     }
 
-    suspend fun createDiary(entry: DiaryEntry): Boolean {
-        return try {
-            supabase.from("diaries")
-                .insert(entry)
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    suspend fun updateDiary(entry: DiaryEntry): Boolean {
-        return try {
-            supabase.from("diaries")
-                .update(entry) {
-                    filter {
-                        eq("id", entry.id!!)
-                    }
-                }
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
-
     suspend fun deleteDiary(id: Int): Boolean {
         return try {
-            supabase.from("diaries")
+            postgrest["diaries"]
                 .delete {
                     filter {
                         eq("id", id)
@@ -76,28 +87,8 @@ class DiaryRepository {
         }
     }
 
-    suspend fun uploadImage(fileBytes: ByteArray, fileName: String): String? {
-        return try {
-            val uniqueFileName = "${UUID.randomUUID()}_$fileName"
-            supabase.storage.from(bucketName).upload(uniqueFileName, fileBytes)
-            supabase.storage.from(bucketName).publicUrl(uniqueFileName)
-        } catch (e: Exception) {
-            null
-        }
-    }
 
-    suspend fun deleteImage(imageUrl: String): Boolean {
-        return try {
-            val fileName = imageUrl.substringAfterLast("/")
-            supabase.storage.from(bucketName).delete(fileName)
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    fun getCurrentTimestamp(): String {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
-        return dateFormat.format(Date())
+    fun getCurrentTimestamp(): Instant {
+        return Instant.now()
     }
 }
