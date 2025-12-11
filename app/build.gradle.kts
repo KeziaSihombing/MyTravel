@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.supabase.gotrue)
     implementation(libs.supabase.storage)
     implementation(libs.supabase.postgrest)
+    implementation(libs.supabase.realtime)
 
     // Ktor
     implementation(libs.ktor.client.cio)

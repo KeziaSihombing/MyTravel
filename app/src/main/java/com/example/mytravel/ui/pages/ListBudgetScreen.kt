@@ -23,9 +23,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.mytravel.domain.model.Rencana // Import your actual Rencana model
 import com.example.mytravel.ui.common.UiResult
 import com.example.mytravel.ui.viewmodel.BudgetViewModel
+import com.example.mytravel.ui.viewmodel.RencanaWithTotal
+import java.text.NumberFormat
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,10 +35,12 @@ fun ListBudgetScreen(
     onRencanaClick: (String) -> Unit,
     budgetViewModel: BudgetViewModel = viewModel()
 ) {
-    val rencanaListState by budgetViewModel.rencanaList.collectAsState()
+    // Mengamati state baru dari ViewModel
+    val rencanaListState by budgetViewModel.rencanaWithTotals.collectAsState()
 
+    // Memuat data awal saat layar pertama kali dibuka
     LaunchedEffect(Unit) {
-        budgetViewModel.loadAllRencana()
+        budgetViewModel.loadInitialData()
     }
 
     Scaffold(
@@ -59,8 +63,8 @@ fun ListBudgetScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        items(result.data) { rencana ->
-                            RencanaCard(rencana = rencana, onClick = { onRencanaClick(rencana.id.toString()) })
+                        items(result.data) { rencanaWithTotal ->
+                            RencanaCard(rencana = rencanaWithTotal, onClick = { onRencanaClick(rencanaWithTotal.rencana.id.toString()) })
                         }
                     }
                 }
@@ -77,7 +81,13 @@ fun ListBudgetScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RencanaCard(rencana: Rencana, onClick: () -> Unit) {
+fun RencanaCard(
+    rencana: RencanaWithTotal, // Menggunakan RencanaWithTotal
+    onClick: () -> Unit
+) {
+    val formatter = NumberFormat.getNumberInstance(Locale("in", "ID"))
+    val formattedTotal = formatter.format(rencana.total)
+
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth()
@@ -85,9 +95,8 @@ fun RencanaCard(rencana: Rencana, onClick: () -> Unit) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            Text(text = rencana.judul)
-            // You can calculate and display the total budget here later
-            Text(text = "0,00") 
+            Text(text = rencana.rencana.judul)
+            Text(text = "Rp. $formattedTotal") // Menampilkan total yang sudah diformat
         }
     }
 }

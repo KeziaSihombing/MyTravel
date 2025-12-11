@@ -35,6 +35,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mytravel.domain.model.Budget
 import com.example.mytravel.ui.common.UiResult
 import com.example.mytravel.ui.viewmodel.BudgetViewModel
+import java.text.NumberFormat
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,9 +49,10 @@ fun RincianBudgetScreen(
     val id = rencanaId.toLongOrNull()
     val budgetItemsState by budgetViewModel.budgetItems.collectAsState()
 
+    // Listen for real-time updates
     LaunchedEffect(id) {
         id?.let {
-            budgetViewModel.loadBudgetsForRencana(it)
+            budgetViewModel.listenForBudgetUpdates(it)
         }
     }
 
@@ -57,7 +60,7 @@ fun RincianBudgetScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Rincian Budget") },
-                navigationIcon = { // Tombol kembali ditambahkan di sini
+                navigationIcon = { 
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -135,9 +138,11 @@ fun RincianBudgetScreen(
 
 @Composable
 fun BudgetItemRow(budget: Budget) {
+    val formatter = NumberFormat.getNumberInstance(Locale("in", "ID"))
+    val formattedNominal = formatter.format(budget.nominal)
+
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        // You can add an AsyncImage here for budget.imageUrl if you have it
         Text(text = budget.title)
-        Text(text = "Rp. ${budget.nominal}")
+        Text(text = "Rp. $formattedNominal")
     }
 }

@@ -2,20 +2,31 @@ package com.example.mytravel.data.repository
 
 import com.example.mytravel.data.remote.SupabaseHolder
 import com.example.mytravel.domain.model.Budget
-import com.example.mytravel.domain.model.Rencana // Pastikan Rencana di-import
+import com.example.mytravel.domain.model.Rencana 
 import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.realtime.PostgresAction
+import io.github.jan.supabase.realtime.channel
+import io.github.jan.supabase.realtime.postgresChangeFlow
+import io.github.jan.supabase.realtime.realtime
 import io.github.jan.supabase.storage.storage
 import io.github.jan.supabase.gotrue.auth
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onStart
 import java.io.File
 
 class BudgetRepository {
 
-    // Fungsi baru untuk mengambil semua Rencana
     suspend fun fetchAllRencana(): List<Rencana> {
         return SupabaseHolder.client.postgrest["rencana"].select().decodeList()
     }
 
-    // Mengambil budget items untuk rencana tertentu
+    // Fungsi baru untuk mengambil SEMUA item budget
+    suspend fun fetchAllBudgets(): List<Budget> {
+        return SupabaseHolder.client.postgrest["budget"].select().decodeList()
+    }
+
     suspend fun fetchBudgetsForRencana(rencanaId: Long): List<Budget> {
         return SupabaseHolder.client.postgrest["budget"].select {
             filter {
@@ -24,7 +35,28 @@ class BudgetRepository {
         }.decodeList<Budget>()
     }
 
-    // Menambahkan budget item baru ke sebuah rencana
+    fun listenToBudgetChanges(rencanaId: Long): Flow<List<Budget>> {
+        return SupabaseHolder.client.realtime
+            .channel("budget-rencana-$rencanaId")
+            .postgresChangeFlow<PostgresAction>(schema = "public") { 
+                table = "budget"
+                filter = "rencana_id=eq.$rencanaId"
+            }.mapLatest { 
+                fetchBudgetsForRencana(rencanaId)
+            }.onStart { 
+                emit(fetchBudgetsForRencana(rencanaId)) 
+            }
+    }
+
+    // Listener baru untuk semua perubahan di tabel budget
+    fun listenToAnyBudgetChange(): Flow<Unit> {
+        return SupabaseHolder.client.realtime
+            .channel("public:budget")
+            .postgresChangeFlow<PostgresAction>(schema = "public") {
+                table = "budget"
+            }.map { } // Hanya sebagai sinyal, tidak perlu data
+    }
+
     suspend fun addBudgetToRencana(rencanaId: Long, title: String, nominal: Double, attachment: File?): Budget {
         val userId = SupabaseHolder.client.auth.currentUserOrNull()?.id
         require(userId != null) { "User not logged in" }
@@ -38,7 +70,7 @@ class BudgetRepository {
 
         val newBudget = Budget(
             userId = userId,
-            rencanaId = rencanaId, // Menyimpan ID rencana
+            rencanaId = rencanaId, 
             title = title,
             nominal = nominal,
             imageUrl = imageUrl
