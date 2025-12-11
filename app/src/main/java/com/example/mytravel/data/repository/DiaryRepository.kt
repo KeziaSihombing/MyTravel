@@ -66,28 +66,34 @@ class DiaryRepository {
 
     suspend fun getDiaryById(id: Int): DiaryEntry? {
         return try {
-            postgrest["diaries"]
+            val response = postgrest["diary_entries"]
                 .select {
                     filter {
                         eq("id", id)
                     }
+                    limit(1)
                 }
-                .decodeSingle<DiaryEntry>()
+
+            val dto = response.decodeSingle<DiaryEntryDto>()
+            DiaryMapper.map(dto)
+
         } catch (e: Exception) {
+            Log.e("GET_DIARY_BY_ID", "error = ${e.message}")
             null
         }
     }
 
+
     suspend fun deleteDiary(id: Int): Boolean {
         return try {
-            postgrest["diaries"]
-                .delete {
-                    filter {
-                        eq("id", id)
-                    }
+            postgrest["diary_entries"].delete {
+                filter {
+                    eq("id", id)
                 }
+            }
             true
         } catch (e: Exception) {
+            Log.e("DELETE_DIARY", "error = ${e.message}")
             false
         }
     }
