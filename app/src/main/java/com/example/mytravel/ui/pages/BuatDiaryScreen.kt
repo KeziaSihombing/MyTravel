@@ -1,8 +1,6 @@
 package com.example.mytravel.ui.pages
 
 
-
-
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -32,9 +30,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.mytravel.ui.viewmodel.BuatDiaryViewModel
 
-
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BuatDiaryScreen(
@@ -52,8 +47,6 @@ fun BuatDiaryScreen(
     val context = LocalContext.current
 
 
-
-
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -64,8 +57,6 @@ fun BuatDiaryScreen(
             viewModel.updateImage(it, bytes)
         }
     }
-
-
 
 
     LaunchedEffect(saveSuccess) {
@@ -131,13 +122,7 @@ fun BuatDiaryScreen(
                 singleLine = true
             )
 
-
-
-
             Spacer(modifier = Modifier.height(16.dp))
-
-
-
 
             // Color Picker
             Text(
@@ -148,19 +133,13 @@ fun BuatDiaryScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
 
-
-
             ColorPicker(
                 selectedColor = selectedColor,
                 onColorSelected = { viewModel.updateColor(it) }
             )
 
 
-
-
             Spacer(modifier = Modifier.height(16.dp))
-
-
 
 
             // Image Section
@@ -180,8 +159,6 @@ fun BuatDiaryScreen(
                     Text("Pilih Gambar")
                 }
             }
-
-
 
 
             imageUri?.let { uri ->

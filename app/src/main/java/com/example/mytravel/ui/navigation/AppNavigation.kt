@@ -18,25 +18,25 @@ import androidx.navigation.navArgument
 import com.example.mytravel.domain.model.Profile
 import com.example.mytravel.ui.common.UiResult
 import com.example.mytravel.ui.components.NavigationBar
-import com.example.mytravel.ui.pages.BuatBudgetScreen
-import com.example.mytravel.ui.pages.RincianBudgetScreen
-import com.example.mytravel.ui.pages.ListBudgetScreen
 import com.example.mytravel.ui.pages.ListCommentsScreen
 import com.example.mytravel.ui.pages.AddCommentScreen
+import com.example.mytravel.ui.pages.BuatBudgetScreen
 import com.example.mytravel.ui.pages.BuatDiaryScreen
 import com.example.mytravel.ui.pages.CommentDetailScreen
 import com.example.mytravel.ui.pages.DestinationDetailScreen
 import com.example.mytravel.ui.pages.DestinationListScreen
+import com.example.mytravel.ui.pages.DetailDiaryScreen
 import com.example.mytravel.ui.pages.DetailReviewScreen
 import com.example.mytravel.ui.pages.EditProfileScreen
 import com.example.mytravel.ui.pages.FormReviewScreen
-import com.example.mytravel.ui.pages.LoginScreen
 import com.example.mytravel.ui.pages.HomeScreen
+import com.example.mytravel.ui.pages.ListBudgetScreen
 import com.example.mytravel.ui.pages.ListDiaryScreen
-import com.example.mytravel.ui.pages.RegisterScreen
+import com.example.mytravel.ui.pages.LoginScreen
 import com.example.mytravel.ui.pages.ProfileScreen
+import com.example.mytravel.ui.pages.RegisterScreen
+import com.example.mytravel.ui.pages.RincianBudgetScreen
 import com.example.mytravel.ui.viewmodel.AuthViewModel
-import com.example.mytravel.ui.viewmodel.BudgetViewModel
 import com.example.mytravel.ui.viewmodel.DestinationViewModel
 import com.example.mytravel.ui.viewmodel.HomeViewModel
 import com.example.mytravel.ui.viewmodel.ProfileViewModel
@@ -97,8 +97,9 @@ fun AppNavigation(
         AppRoute.ListComment.route,
         AppRoute.CommentDetail.route,
         AppRoute.AddFirstProfile.route,
-        AppRoute.RincianBudget.route,
-        AppRoute.BuatBudget.route
+        AppRoute.RincianBudget.route, // Hide navbar on RincianBudget
+        AppRoute.BuatBudget.route,   // Hide navbar on BuatBudget
+        AppRoute.DetailDiary.route
     )
 
     val showBottomBar = hideRoutes.none { route ->
@@ -285,6 +286,20 @@ fun AppNavigation(
                 BuatDiaryScreen(
                     onNavigateBack = { navController.popBackStack() },
                     viewModel = viewModel()
+                )
+            }
+
+            composable(
+                route = AppRoute.DetailDiary.route,
+                arguments = listOf(navArgument("diaryId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val diaryId = backStackEntry.arguments?.getInt("diaryId") ?: 0
+                DetailDiaryScreen(
+                    diaryId = diaryId,
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToEdit = { id ->
+                        // TODO: Implement edit screen
+                    }
                 )
             }
         }

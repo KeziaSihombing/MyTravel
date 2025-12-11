@@ -11,7 +11,7 @@ sealed class AppRoute(val route: String) {
     object Budget : AppRoute("budget")
     object Profile : AppRoute("profile")
 
-    // New Budget Routes
+    // Budget Routes
     object ListBudget : AppRoute("listBudget")
     object RincianBudget : AppRoute("rincianBudget/{rencanaId}") {
         fun createRoute(rencanaId: String) = "rincianBudget/$rencanaId"
@@ -51,5 +51,8 @@ sealed class AppRoute(val route: String) {
 
     object AddDiary : AppRoute("addDiary/{reviewId}"){
         fun build(id: String) = "addDiary/$id"
+    }
+    object DetailDiary: AppRoute("detailDiary/{diaryId}"){
+        fun build(id: Int) = "detailDiary/$id"
     }
 }
