@@ -3,8 +3,13 @@ package com.example.mytravel.data.repository
 
 
 
+import android.util.Log
 import com.example.mytravel.data.remote.SupabaseHolder
+import com.example.mytravel.domain.mapper.CommentMapper
+import com.example.mytravel.domain.mapper.DiaryMapper
+import com.example.mytravel.domain.model.CommentDto
 import com.example.mytravel.domain.model.DiaryEntry
+import com.example.mytravel.domain.model.DiaryEntryDto
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Order
@@ -50,39 +55,46 @@ class DiaryRepository {
     }
 
     suspend fun getAllDiaries(): List<DiaryEntry> {
-        return try {
-            postgrest["diaries"]
-                .select()
-                .decodeList<DiaryEntry>()
-        } catch (e: Exception) {
-            emptyList()
+        val response = postgrest["diary_entries"].select {
+            order("created_at", Order.DESCENDING)
         }
+        Log.d("GET_ALL_DIARIES", "raw=" + (response.data ?: "null"))
+        val list = response.decodeList<DiaryEntryDto>()
+        return DiaryMapper.mapList(list)
     }
+
 
     suspend fun getDiaryById(id: Int): DiaryEntry? {
         return try {
-            postgrest["diaries"]
+            val response = postgrest["diary_entries"]
                 .select {
                     filter {
                         eq("id", id)
                     }
+                    limit(1)
                 }
-                .decodeSingle<DiaryEntry>()
+
+            val dto = response.decodeSingle<DiaryEntryDto>()
+            DiaryMapper.map(dto) // <-- ini yang bikin image_url jadi full URL
+
         } catch (e: Exception) {
+            Log.e("GET_DIARY_BY_ID", "error=${e.message}")
             null
         }
     }
 
+
+
     suspend fun deleteDiary(id: Int): Boolean {
         return try {
-            postgrest["diaries"]
-                .delete {
-                    filter {
-                        eq("id", id)
-                    }
+            postgrest["diary_entries"].delete {
+                filter {
+                    eq("id", id)
                 }
+            }
             true
         } catch (e: Exception) {
+            Log.e("DELETE_DIARY", "error = ${e.message}")
             false
         }
     }

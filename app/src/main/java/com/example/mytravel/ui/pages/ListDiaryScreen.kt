@@ -29,19 +29,19 @@ import com.example.mytravel.ui.viewmodel.ListDiaryViewModel
 import com.example.mytravel.domain.model.DiaryEntry
 
 
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListDiaryScreen(
     onNavigateToBuat: () -> Unit,
-    viewModel: ListDiaryViewModel = viewModel()
+    onNavigateToDetail: (Int) -> Unit,
+    viewModel: ListDiaryViewModel = viewModel(),
 ) {
     val diaries by viewModel.diaries.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
-
-
+    LaunchedEffect(Unit) {
+        viewModel.loadDiaries()
+    }
 
     Scaffold(
         topBar = {
@@ -66,29 +66,42 @@ fun ListDiaryScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else if (diaries.isEmpty()) {
-                Text(
-                    text = "Belum ada diary. Yuk buat yang pertama!",
-                    modifier = Modifier.align(Alignment.Center),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(diaries.size) { index ->
-                        val diary = diaries[index]  // ambil diary dari list pakai index
-                        DiaryCard(
-                            diary = diary,
-                            onDelete = { viewModel.deleteDiary(diary.id!!) }
-                        )
+            when {
+                isLoading -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+
+                diaries.isEmpty() -> {
+                    Text(
+                        text = "Belum ada diary. Yuk buat yang pertama!",
+                        modifier = Modifier.align(Alignment.Center),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+
+                else -> {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        contentPadding = PaddingValues(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(
+                            diaries,
+                            key = { it.id ?: it.hashCode() }
+                        ) { diary ->
+                            DiaryCard(
+                                diary = diary,
+                                onDelete = {
+                                    diary.id?.let { idSafe ->
+                                        viewModel.deleteDiary(idSafe)
+                                    }
+                                },
+                                onClick = onNavigateToDetail
+                            )
+                        }
                     }
                 }
             }
@@ -102,7 +115,8 @@ fun ListDiaryScreen(
 @Composable
 fun DiaryCard(
     diary: DiaryEntry,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onClick: (id: Int) -> Unit,
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -112,7 +126,10 @@ fun DiaryCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp),
+            .height(200.dp)
+            .clickable {
+                diary.id?.let { onClick(it) }
+            },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
@@ -125,6 +142,9 @@ fun DiaryCard(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(12.dp)
+                    .clickable{
+                        onClick(diary.id!!)
+                    }
             ) {
                 // Image
                 if (!diary.imageUrl.isNullOrEmpty()) {
@@ -212,8 +232,6 @@ fun DiaryCard(
         )
     }
 }
-
-
 
 
 fun parseColor(colorString: String): Color {
