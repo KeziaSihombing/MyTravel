@@ -97,38 +97,40 @@ class BuatDiaryViewModel : ViewModel() {
         viewModelScope.launch {
             _isSaving.value = true
 
-            val userId = SupabaseHolder.session()?.user?.id
-            if (userId == null) {
-                _saveSuccess.value = false
-                _isSaving.value = false
-                return@launch
-            }
+            try {
+                val userId = SupabaseHolder.session()?.user?.id
+                    ?: throw IllegalStateException("User not logged in")
 
-            // 1. Upload image dulu ke storage jika ada
-            var imagePath: String? = null
-            val imageBytes = _imageBytes.value
+                // 1. Upload image dulu ke storage jika ada
+                val imageBytes = _imageBytes.value
+                var imagePath: String? = null
 
-            if (imageBytes != null) {
-                imagePath = repository.uploadImage(
-                    imageBytes,
-                    userId // folder user
+                if (imageBytes != null) {
+                    imagePath = repository.uploadImage(
+                        imageBytes,
+                        userId
+                    )
+                }
+
+                // 2. Buat entry
+                val entry = DiaryEntry(
+                    title = _title.value,
+                    content = _content.value,
+                    imageUrl = imagePath,
+                    color = _selectedColor.value,
+                    createdAt = repository.getCurrentTimestamp()
                 )
+
+                // 3. Simpan ke database
+                val success = repository.createDiary(entry)
+                _saveSuccess.value = success
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _saveSuccess.value = false
+            } finally {
+                _isSaving.value = false
             }
-
-            // 2. Buat entry
-            val entry = DiaryEntry(
-                title = _title.value,
-                content = _content.value,
-                imageUrl = imagePath,   // sekarang simpan PATH, bukan URL
-                color = _selectedColor.value,
-                createdAt = repository.getCurrentTimestamp()
-            )
-
-            // 3. Simpan ke Postgrest
-            val success = repository.createDiary(entry)
-
-            _isSaving.value = false
-            _saveSuccess.value = success
         }
     }
 

@@ -97,6 +97,8 @@ fun BuatDiaryScreen(
                                 modifier = Modifier.size(24.dp),
                                 strokeWidth = 2.dp
                             )
+
+
                         } else {
                             Icon(
                                 Icons.Default.Check,
