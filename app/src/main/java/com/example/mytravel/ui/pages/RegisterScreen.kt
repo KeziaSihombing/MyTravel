@@ -38,7 +38,8 @@ fun RegisterScreen(
     var showConfirmationMessage by remember { mutableStateOf(false) }
 
     LaunchedEffect(state) {
-        if (state is UiResult.Success) {
+        // Hanya tampilkan konfirmasi jika state adalah Success DAN datanya true
+        if (state is UiResult.Success && (state as UiResult.Success<Boolean>).data == true) {
             showConfirmationMessage = true
         }
     }
@@ -64,7 +65,6 @@ private fun RegistrationForm(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
     Column(
@@ -112,19 +112,11 @@ private fun RegistrationForm(
                 }
             }
         )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = description,
-            onValueChange = { description = it },
-            label = { Text("Description (Optional)") },
-            modifier = Modifier.fillMaxWidth(),
-            maxLines = 3
-        )
+        
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = { viewModel.register(email, password, name, description) },
+            onClick = { viewModel.register(email, password, name, "") }, // Deskripsi dikirim sebagai string kosong
             enabled = state !is UiResult.Loading,
             modifier = Modifier.fillMaxWidth()
         ) {
