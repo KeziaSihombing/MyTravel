@@ -1,8 +1,6 @@
 package com.example.mytravel.data.repository
 
 
-
-
 import android.util.Log
 import com.example.mytravel.data.remote.SupabaseHolder
 import com.example.mytravel.domain.mapper.CommentMapper
@@ -19,8 +17,6 @@ import java.util.Date
 import java.util.Locale
 import java.util.UUID
 import java.time.Instant
-
-
 
 
 class DiaryRepository {
@@ -46,8 +42,7 @@ class DiaryRepository {
             "title" to entry.title,
             "content" to entry.content,
             "image_url" to entry.imageUrl,
-            "color" to entry.color,
-            "created_at" to entry.createdAt
+            "color" to entry.color
         )
 
         postgrest["diary_entries"].insert(map)
@@ -98,7 +93,6 @@ class DiaryRepository {
             false
         }
     }
-
 
     fun getCurrentTimestamp(): Instant {
         return Instant.now()
