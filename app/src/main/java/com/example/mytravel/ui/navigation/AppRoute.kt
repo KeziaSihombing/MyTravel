@@ -11,6 +11,15 @@ sealed class AppRoute(val route: String) {
     object Budget : AppRoute("budget")
     object Profile : AppRoute("profile")
 
+    // New Budget Routes
+    object ListBudget : AppRoute("listBudget")
+    object RincianBudget : AppRoute("rincianBudget/{rencanaId}") {
+        fun createRoute(rencanaId: String) = "rincianBudget/$rencanaId"
+    }
+    object BuatBudget : AppRoute("buatBudget/{rencanaId}") {
+        fun createRoute(rencanaId: String) = "buatBudget/$rencanaId"
+    }
+
     // Screen lainnya
     object AddFirstProfile : AppRoute("addFirstProfile/{userId}"){
         fun build(id: String) = "addFirstProfile/$id"
