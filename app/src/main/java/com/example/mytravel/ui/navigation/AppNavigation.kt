@@ -40,7 +40,6 @@ fun AppNavigation(
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = viewModel(),
     profileViewModel: ProfileViewModel = viewModel(),
-    destinationViewModel: DestinationViewModel = viewModel()
 ) {
     val navController = rememberNavController()
 
@@ -132,7 +131,6 @@ fun AppNavigation(
                 )
             }
 
-
             composable(AppRoute.Register.route) {
                 RegisterScreen(
                     viewModel = authViewModel
@@ -198,7 +196,6 @@ fun AppNavigation(
 
             composable(AppRoute.DestinationList.route) {
                 DestinationListScreen(
-                    viewModel = destinationViewModel,
                     onDetail = { id -> navController.navigate(AppRoute.DestinationDetail.createRoute(id)) },
                     onNavigateBack = { navController.navigate(AppRoute.Home.route)}
                 )
