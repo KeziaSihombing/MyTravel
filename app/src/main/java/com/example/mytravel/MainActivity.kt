@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.mytravel.ui.navigation.AppNavigation
 import com.example.mytravel.ui.pages.BudgetScreen
 import com.example.mytravel.ui.pages.BuatDiaryScreen
 import com.example.mytravel.ui.pages.HomeScreen
@@ -18,20 +19,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            // AppNavigation()
-            MyTravelTheme {
-                // Langsung menampilkan BudgetScreen untuk pengujian
-                BudgetScreen()
-            }
+            AppNavigation()
         }
-    }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun DefaultPreview() {
-    MyTravelTheme {
-        // Langsung menampilkan BudgetScreen untuk pengujian
-        HomeScreen()
     }
 }
