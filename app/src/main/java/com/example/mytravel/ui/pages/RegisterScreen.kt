@@ -38,7 +38,6 @@ fun RegisterScreen(
     var showConfirmationMessage by remember { mutableStateOf(false) }
 
     LaunchedEffect(state) {
-        // Hanya tampilkan konfirmasi jika state adalah Success DAN datanya true
         if (state is UiResult.Success && (state as UiResult.Success<Boolean>).data == true) {
             showConfirmationMessage = true
         }
@@ -76,15 +75,6 @@ private fun RegistrationForm(
     ) {
         Text("Create an Account", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(24.dp))
-
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Name") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-        Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = email,
