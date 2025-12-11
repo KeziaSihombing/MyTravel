@@ -40,7 +40,6 @@ fun AppNavigation(
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = viewModel(),
     profileViewModel: ProfileViewModel = viewModel(),
-    homeViewModel: HomeViewModel = viewModel(),
     destinationViewModel: DestinationViewModel = viewModel()
 ) {
     val navController = rememberNavController()
@@ -200,7 +199,8 @@ fun AppNavigation(
             composable(AppRoute.DestinationList.route) {
                 DestinationListScreen(
                     viewModel = destinationViewModel,
-                    onDetail = { id -> navController.navigate(AppRoute.DestinationDetail.createRoute(id)) }
+                    onDetail = { id -> navController.navigate(AppRoute.DestinationDetail.createRoute(id)) },
+                    onNavigateBack = { navController.navigate(AppRoute.Home.route)}
                 )
             }
 
@@ -213,7 +213,7 @@ fun AppNavigation(
 
                 DestinationDetailScreen(
                     destinationId = destinationId,
-                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateBack = { navController.navigate(AppRoute.Home.route) },
                     onNavigateAddReview = { navController.navigate(AppRoute.AddReview.createRoute(destinationId)) },
                     onNavigateReviewDetail = { reviewId ->
                         navController.navigate(AppRoute.ReviewDetail.createRoute(reviewId))
@@ -237,7 +237,7 @@ fun AppNavigation(
 
                 DetailReviewScreen(
                     reviewId = reviewId,
-                    onBack = { navController.popBackStack() }
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
 
@@ -248,7 +248,8 @@ fun AppNavigation(
                 val id = it.arguments!!.getLong("id")
                 FormReviewScreen(
                     destinationId = id,
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    onNavigateBack = { navController.popBackStack()}
                 )
             }
         }
