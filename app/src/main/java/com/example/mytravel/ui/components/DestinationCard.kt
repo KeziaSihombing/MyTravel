@@ -10,7 +10,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -55,22 +54,26 @@ fun DestinationCard(
             ) {
                 Text(text = destination.name, style = MaterialTheme.typography.titleMedium)
 
+                Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "Jam buka: ${destination.openHours}",
+                    text = destination.address,
                     style = MaterialTheme.typography.bodySmall
                 )
 
-                Text(
-                    text = "Harga: Rp ${destination.price}",
-                    style = MaterialTheme.typography.bodySmall
-                )
-
+                Spacer(modifier = Modifier.width(4.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    Button(onClick = {onDetailClick(destination.id) }) {
-                        Text("Detail")
+                    Button(
+                        onClick = { onDetailClick(destination.id) },
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            text = "Detail",
+                            style = MaterialTheme.typography.bodySmall // teks kecil
+                        )
                     }
                 }
             }

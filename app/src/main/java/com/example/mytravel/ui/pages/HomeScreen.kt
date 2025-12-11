@@ -82,7 +82,7 @@ fun HomeScreen(
                     val name = (homeState as UiResult.Success).data
                     Column {
                         Text(
-                            text = "Selamat Datang, $name",
+                            text = "Selamat Datang, $name!",
                             style = MaterialTheme.typography.headlineSmall,
                             color = Color.White
                         )

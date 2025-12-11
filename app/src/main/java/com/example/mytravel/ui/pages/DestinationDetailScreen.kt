@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -89,7 +90,7 @@ fun DestinationDetailScreen(
 
             is UiResult.Loading -> {
                 item {
-                    Text("Loading…")
+                    Text("Memuat detail destinasi…")
                 }
             }
 
@@ -118,12 +119,12 @@ fun DestinationDetailScreen(
                         Button(
                             onClick = { /* TODO */ },
                             modifier = Modifier
-                                .align(Alignment.TopEnd)
+                                .align(Alignment.BottomEnd)
                                 .padding(12.dp),
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Black.copy(alpha = 0.5f),
-                                contentColor = Color.White
+                                containerColor = Color.White,
+                                contentColor = Color(0xFF6200EE)
                             ),
                             contentPadding = PaddingValues(
                                 horizontal = 12.dp,
@@ -138,16 +139,22 @@ fun DestinationDetailScreen(
                 item {
                     Spacer(Modifier.height(16.dp))
 
-                    Text(dest.name, style = MaterialTheme.typography.headlineSmall)
-
-                    Text("Alamat", style = MaterialTheme.typography.titleSmall)
-                    Text(dest.address)
+                    Text(
+                        dest.name,
+                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold)
+                    )
 
                     Spacer(Modifier.height(8.dp))
 
-                    Text("Waktu Buka : ${dest.openHours}")
-                    Text("Harga : ${dest.price}")
-                    Text("Kontak : ${dest.contact}")
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Map,
+                            contentDescription = null,
+                            tint = Color(0xFF6200EE)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(dest.address)
+                    }
 
                     Spacer(Modifier.height(16.dp))
 
@@ -157,13 +164,50 @@ fun DestinationDetailScreen(
                     Spacer(Modifier.height(16.dp))
 
                     Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                color = Color(0xFF6200EE).copy(alpha = 0.1f), // ungu transparan
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text("Waktu Buka", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                            Text(dest.openHours?:"")
+                        }
+                        Column {
+                            Text("Harga", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                            Text(dest.price?:"")
+                        }
+                        Column {
+                            Text("Kontak", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                            Text(dest.contact?:"")
+                        }
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(Color.Gray.copy(alpha = 0.3f))
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Review", style = MaterialTheme.typography.titleMedium)
+                        Text("Review",
+                            fontSize = 20.sp,
+                            style = MaterialTheme.typography.titleMedium
+                        )
                         Text(
                             "Buat Review",
-                            color = Color.Blue,
+                            color = Color(0xFF6200EE),
                             modifier = Modifier.clickable { onNavigateAddReview() }
                         )
                     }
@@ -190,7 +234,7 @@ fun DestinationDetailScreen(
                                 onCommentList= {onNavigateCommentList(review.id)},
                                 onNavigateAddComment = {onNavigateAddComment(review.id)}
                             )
-                            Spacer(Modifier.height(8.dp))
+                            Spacer(Modifier.height(4.dp))
                         }
                     }
                 }

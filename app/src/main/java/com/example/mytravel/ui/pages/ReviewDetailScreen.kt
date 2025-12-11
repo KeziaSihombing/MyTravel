@@ -2,9 +2,11 @@ package com.example.mytravel.ui.pages
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -12,12 +14,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +25,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,7 +33,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.mytravel.ui.common.UiResult
 import com.example.mytravel.ui.viewmodel.ReviewViewModel
-import io.ktor.websocket.Frame
 
 @Composable
 fun DetailReviewScreen(
@@ -50,9 +49,13 @@ fun DetailReviewScreen(
     when (val state = detailState) {
         is UiResult.Loading -> {
             Column(
-                modifier = Modifier.padding(24.dp)
-            ) {
-                CircularProgressIndicator()
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ){
+                CircularProgressIndicator(
+                    strokeWidth = 30.dp,
+                )
             }
         }
 
@@ -62,7 +65,7 @@ fun DetailReviewScreen(
             ) {
                 Text(
                     text = state.message,
-                    color = androidx.compose.ui.graphics.Color.Red
+                    color = Color.Red
                 )
             }
         }
@@ -92,45 +95,57 @@ fun DetailReviewScreen(
                     )
                 }
 
-
                 Spacer(Modifier.height(16.dp))
 
-                // Centered image, bigger
-                if (!review.images.isNullOrEmpty()) {
-                    AsyncImage(
-                        model = review.images,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(320.dp) // lebih gede
-                            .padding(bottom = 8.dp)
-                            .align(Alignment.CenterHorizontally) // ketengahin
-                    )
-                }
+                Text(
+                    text = "Dibuat oleh: ${review.userName}",
+                    fontSize = 18.sp,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                )
 
-                Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.height(8.dp))
 
-                // Box ungu muda untuk konten
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 4.dp)
                         .background(
                             color = Color(0xFFEEE5FF),
                             shape = RoundedCornerShape(16.dp)
                         )
                         .padding(16.dp)
                 ) {
-
-                    Text(
-                        text = "Dibuat oleh: ${review.userName}",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-
-                    Spacer(Modifier.height(12.dp))
-
                     Text(
                         text = review.content,
                         style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                Spacer(Modifier.height(16.dp))
+
+                Text(
+                    text = "Gambar",
+                    fontSize = 16.sp,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                if (!review.images.isNullOrEmpty()) {
+                    AsyncImage(
+                        model = review.images,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(320.dp)
+                            .padding(bottom = 8.dp)
+                            .align(Alignment.CenterHorizontally)
+                            .clip(RoundedCornerShape(16.dp))
+                    )
+                } else {
+                    Text(
+                        text = "Tidak ada gambar",
+                        color = Color(0xFF6200EE),
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                        modifier = Modifier.padding(8.dp)
                     )
                 }
             }

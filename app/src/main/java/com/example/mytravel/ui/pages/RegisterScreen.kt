@@ -1,7 +1,5 @@
 package com.example.mytravel.ui.pages
 
-
-import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -12,7 +10,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mytravel.ui.common.UiResult
 import com.example.mytravel.ui.viewmodel.AuthViewModel
-
 
 @Composable
 fun RegisterScreen(

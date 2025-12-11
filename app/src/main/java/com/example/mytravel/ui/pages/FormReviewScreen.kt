@@ -2,7 +2,6 @@ package com.example.mytravel.ui.pages
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -20,7 +19,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,9 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -45,7 +41,6 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mytravel.ui.common.UiResult
 import com.example.mytravel.ui.viewmodel.ReviewViewModel
@@ -65,7 +60,6 @@ fun FormReviewScreen(
 
     val context = LocalContext.current
     val addingState by viewModel.adding.collectAsState()
-
 
     // Gallery picker
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -91,94 +85,104 @@ fun FormReviewScreen(
         bitmap = BitmapFactory.decodeFile(temp.absolutePath)
     }
 
-
-    // Camera
-    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview())
-    { bmp-> bmp?.let {
-        val temp = File(context.cacheDir, "camera_${System.currentTimeMillis()}.jpg")
-        temp.outputStream().use { os ->
-            it.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, os)
-        }
-        imageFile = temp
-        bitmap = it
-        }
-    }
-
-    // Auto pop when success
     LaunchedEffect(addingState) {
         if (addingState is UiResult.Success) onBack()
     }
 
-    Scaffold(
-        topBar = {
-            Row(
-                modifier = Modifier.clickable { onNavigateBack() },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    Icons.Default.ArrowBackIosNew,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "Kembali",
-                    fontSize = 20.sp,
-                    color = Color.Gray
-                )
-            }
-        }
-    ) { pad ->
-        Column(
-            Modifier.padding(pad).padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+    Column (
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ){
+        Row(
+            modifier = Modifier.clickable { onNavigateBack() },
+            verticalAlignment = Alignment.CenterVertically
         ) {
-
-            TopAppBar(title = { Text("Tambah Review") })
-            OutlinedTextField(
-                value = content,
-                onValueChange = { content = it },
-                label = { Text("Tuliskan review...") },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 3
+            Icon(
+                Icons.Default.ArrowBackIosNew,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
             )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "Kembali",
+                fontSize = 20.sp,
+                color = Color.Gray
+            )
+        }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(onClick = { galleryLauncher.launch("image/*") }) {
-                    Icon(Icons.Default.Photo, null)
-                    Spacer(Modifier.width(8.dp))
-                    Text("Galeri")
-                }
-                OutlinedButton(onClick = { cameraLauncher.launch(null) }) {
-                    Icon(Icons.Default.CameraAlt, null)
-                    Spacer(Modifier.width(8.dp))
-                    Text("Kamera")
-                }
-            }
+        Spacer(Modifier.height(8.dp))
 
-            // Preview images
-            bitmap?.let {
-                Image(bitmap = it.asImageBitmap(), contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(220.dp))
-            }
+        Text(
+            text = "Buat Review",
+            fontSize = 22.sp,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+        )
 
-            Button(
-                onClick = {
-                    viewModel.addReview(destinationId, content, imageFile)
-                },
-                enabled = content.isNotBlank() && addingState !is UiResult.Loading,
-            ) {
-                Text(if (addingState is UiResult.Loading) "Mengirim..." else "Kirim Review")
-            }
+        OutlinedTextField(
+            value = content,
+            onValueChange = { content = it },
+            label = { Text("Tuliskan review...") },
+            modifier = Modifier.fillMaxWidth(),
+            minLines = 3
+        )
 
-            if (addingState is UiResult.Error) {
-                Text(
-                    (addingState as UiResult.Error).message,
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
+        OutlinedButton(
+            onClick = { galleryLauncher.launch("image/*") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(Icons.Default.Photo, null)
+            Spacer(Modifier.width(8.dp))
+            Text("Galeri")
+        }
+
+        Text(
+            text = "Preview",
+            fontSize = 18.sp,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+        )
+
+//        bitmap?.let {
+//            Image(bitmap = it.asImageBitmap(), contentDescription = null,
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .height(220.dp))
+//        }
+
+        if (bitmap != null) {
+            Image(
+                bitmap = bitmap!!.asImageBitmap(),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(220.dp)
+            )
+        } else {
+            Text(
+                text = "Belum Upload Gambar",
+                color = Color(0xFF6200EE), // ungu
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            )
+        }
+
+        Button(
+            onClick = {
+                viewModel.addReview(destinationId, content, imageFile)
+            },
+            enabled = content.isNotBlank() && addingState !is UiResult.Loading,
+        ) {
+            Text(if (addingState is UiResult.Loading) "Mengirim..." else "Kirim Review")
+        }
+
+        if (addingState is UiResult.Error) {
+            Text(
+                (addingState as UiResult.Error).message,
+                color = MaterialTheme.colorScheme.error
+            )
         }
     }
 }
