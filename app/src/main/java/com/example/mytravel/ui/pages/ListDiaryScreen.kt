@@ -40,8 +40,9 @@ fun ListDiaryScreen(
     val diaries by viewModel.diaries.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
-
-
+    LaunchedEffect(Unit) {
+        viewModel.loadDiaries()
+    }
 
     Scaffold(
         topBar = {
@@ -66,29 +67,41 @@ fun ListDiaryScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else if (diaries.isEmpty()) {
-                Text(
-                    text = "Belum ada diary. Yuk buat yang pertama!",
-                    modifier = Modifier.align(Alignment.Center),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(diaries.size) { index ->
-                        val diary = diaries[index]  // ambil diary dari list pakai index
-                        DiaryCard(
-                            diary = diary,
-                            onDelete = { viewModel.deleteDiary(diary.id!!) }
-                        )
+            when {
+                isLoading -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+
+                diaries.isEmpty() -> {
+                    Text(
+                        text = "Belum ada diary. Yuk buat yang pertama!",
+                        modifier = Modifier.align(Alignment.Center),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+
+                else -> {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        contentPadding = PaddingValues(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(
+                            diaries,
+                            key = { it.id ?: it.hashCode() }
+                        ) { diary ->
+                            DiaryCard(
+                                diary = diary,
+                                onDelete = {
+                                    diary.id?.let { idSafe ->
+                                        viewModel.deleteDiary(idSafe)
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }
