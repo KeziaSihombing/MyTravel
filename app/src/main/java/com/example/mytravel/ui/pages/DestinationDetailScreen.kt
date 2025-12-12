@@ -49,6 +49,7 @@ fun DestinationDetailScreen(
     onNavigateReviewDetail: (Long) -> Unit,
     onNavigateCommentList: (Long) -> Unit,
     onNavigateAddComment: (Long) -> Unit,
+    onNavigateAddPlan: (Long, String, String?) -> Unit = { _, _, _ -> },
     destinationViewModel: DestinationViewModel = viewModel(),
     reviewViewModel: ReviewViewModel = viewModel()
 ) {
@@ -117,7 +118,13 @@ fun DestinationDetailScreen(
                         }
 
                         Button(
-                            onClick = { /* TODO */ },
+                            onClick = {
+                                // Kirim data destinasi ke AddPlanScreen
+                                onNavigateAddPlan(
+                                    dest.id,           // destinationId
+                                    dest.name,         // destinationName
+                                    dest.imageUrls)     // destinationImageUrl
+                            },
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
                                 .padding(12.dp),

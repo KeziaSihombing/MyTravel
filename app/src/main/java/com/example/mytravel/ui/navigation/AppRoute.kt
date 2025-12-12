@@ -60,4 +60,23 @@ sealed class AppRoute(val route: String) {
     object DetailDiary: AppRoute("detailDiary/{diaryId}"){
         fun build(id: Int) = "detailDiary/$id"
     }
+
+    // Plan Routes
+    object PlanDetail : AppRoute("planDetail/{planId}") {
+        fun createRoute(planId: Long) = "planDetail/$planId"
+    }
+
+    object AddPlan : AppRoute("addPlan/{destinationId}/{destinationName}/{destinationImageUrl}") {
+        fun createRoute(
+            destinationId: Long,
+            destinationName: String,
+            destinationImageUrl: String?
+        ): String {
+            val encodedImageUrl = destinationImageUrl?.let {
+                java.net.URLEncoder.encode(it, "UTF-8")
+            } ?: "null"
+            val encodedName = java.net.URLEncoder.encode(destinationName, "UTF-8")
+            return "addPlan/$destinationId/$encodedName/$encodedImageUrl"
+        }
+    }
 }

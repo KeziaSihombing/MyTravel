@@ -2,6 +2,7 @@ package com.example.mytravel.ui.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.EventNote
+import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.NoteAlt
@@ -14,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -40,7 +42,7 @@ fun NavigationBar(
         NavigationBarItem(
             selected = selectedItem == AppRoute.Plan.route,
             onClick = {
-//                navController.navigate(AppRoute.Plan.route)
+                navController.navigate(AppRoute.Plan.route)
             },
             icon = { Icon(Icons.AutoMirrored.Filled.EventNote, contentDescription = "Plan") },
             label = { Text("Plan") },

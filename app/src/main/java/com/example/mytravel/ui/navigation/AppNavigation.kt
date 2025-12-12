@@ -18,14 +18,17 @@ import androidx.navigation.navArgument
 import com.example.mytravel.domain.model.Profile
 import com.example.mytravel.ui.common.UiResult
 import com.example.mytravel.ui.components.NavigationBar
+import com.example.mytravel.ui.navigation.AppRoute
 import com.example.mytravel.ui.pages.ListCommentsScreen
 import com.example.mytravel.ui.pages.AddCommentScreen
+import com.example.mytravel.ui.pages.AddPlanScreen
 import com.example.mytravel.ui.pages.BuatBudgetScreen
 import com.example.mytravel.ui.pages.BuatDiaryScreen
 import com.example.mytravel.ui.pages.CommentDetailScreen
 import com.example.mytravel.ui.pages.DestinationDetailScreen
 import com.example.mytravel.ui.pages.DestinationListScreen
 import com.example.mytravel.ui.pages.DetailDiaryScreen
+import com.example.mytravel.ui.pages.DetailPlanScreen
 import com.example.mytravel.ui.pages.DetailReviewScreen
 import com.example.mytravel.ui.pages.EditBudgetScreen // Import baru
 import com.example.mytravel.ui.pages.EditProfileScreen
@@ -33,6 +36,7 @@ import com.example.mytravel.ui.pages.FormReviewScreen
 import com.example.mytravel.ui.pages.HomeScreen
 import com.example.mytravel.ui.pages.ListBudgetScreen
 import com.example.mytravel.ui.pages.ListDiaryScreen
+import com.example.mytravel.ui.pages.ListPlanScreen
 import com.example.mytravel.ui.pages.LoginScreen
 import com.example.mytravel.ui.pages.ProfileScreen
 import com.example.mytravel.ui.pages.RegisterScreen
@@ -80,6 +84,7 @@ fun AppNavigation(
                 val profile = (profileState as UiResult.Success<List<Profile>>).data.first()
 
                 if (profile.name == "Default Name") {
+                    profileViewModel.firstTimeHandled = true
                     navController.navigate(AppRoute.AddFirstProfile.build(profile.id)) {
                         popUpTo(0) { inclusive = true }
                     }
@@ -105,7 +110,9 @@ fun AppNavigation(
         AppRoute.RincianBudget.route, 
         AppRoute.BuatBudget.route,   
         AppRoute.EditBudget.route,
-        AppRoute.DetailDiary.route
+        AppRoute.DetailDiary.route,
+        AppRoute.AddPlan.route,
+        AppRoute.PlanDetail.route
     )
 
     val showBottomBar = hideRoutes.none { route ->
@@ -267,6 +274,15 @@ fun AppNavigation(
                     onNavigateReviewDetail = { reviewId -> navController.navigate(AppRoute.ReviewDetail.createRoute(reviewId)) },
                     onNavigateCommentList = { reviewId -> navController.navigate(AppRoute.ListComment.build(reviewId.toString())) },
                     onNavigateAddComment = { reviewId -> navController.navigate(AppRoute.AddComment.build(reviewId.toString())) },
+                    onNavigateAddPlan = { destId, destName, destImageUrl ->
+                        navController.navigate(
+                            AppRoute.AddPlan.createRoute(
+                                destinationId = destId,
+                                destinationName = destName,
+                                destinationImageUrl = destImageUrl
+                            )
+                        )
+                    }
                 )
             }
 
@@ -328,6 +344,63 @@ fun AppNavigation(
                     }
                 )
             }
+
+            // List Plan - Halaman daftar semua rencana (Bottom Navigation)
+            composable(AppRoute.Plan.route) {
+                ListPlanScreen(
+                    onPlanClick = { plan ->
+                        navController.navigate(AppRoute.PlanDetail.createRoute(plan.id))
+                    }
+                )
+            }
+
+            // Detail Plan - Menampilkan detail rencana
+            composable(
+                route = AppRoute.PlanDetail.route,
+                arguments = listOf(navArgument("planId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val planId = backStackEntry.arguments!!.getLong("planId")
+
+                DetailPlanScreen(
+                    planId = planId,
+                    onNavigateBack = { navController.popBackStack() },
+                    onBudgetClick = { planId ->
+                        // TODO: Navigasi ke Budget Screen
+                        // navController.navigate(AppRoute.Budget.createRoute(planId))
+                        Log.d("PLAN_NAV", "Navigate to Budget for plan: $planId")
+                    }
+                )
+            }
+
+            // Add Plan - Membuat rencana baru untuk destinasi
+            composable(
+                route = AppRoute.AddPlan.route,
+                arguments = listOf(
+                    navArgument("destinationId") { type = NavType.LongType },
+                    navArgument("destinationName") { type = NavType.StringType },
+                    navArgument("destinationImageUrl") {
+                        type = NavType.StringType
+                        nullable = true
+                    }
+                )
+            ) { backStackEntry ->
+                val destinationId = backStackEntry.arguments!!.getLong("destinationId")
+                val destinationName = backStackEntry.arguments!!.getString("destinationName") ?: ""
+                val destinationImageUrl = backStackEntry.arguments?.getString("destinationImageUrl")
+
+                val decodedName = java.net.URLDecoder.decode(destinationName, "UTF-8")
+                val decodedImageUrl = destinationImageUrl?.let {
+                    if (it != "null") java.net.URLDecoder.decode(it, "UTF-8") else null
+                }
+
+                AddPlanScreen(
+                    destinationId = destinationId,
+                    destinationName = decodedName,
+                    destinationImageUrl = decodedImageUrl,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
         }
     }
 }
