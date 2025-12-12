@@ -169,31 +169,31 @@ fun AppNavigation(
                 })
             }
 
-//            composable(
-//                route = AppRoute.RincianBudget.route,
-//                arguments = listOf(navArgument("rencanaId") { type = NavType.StringType })
-//            ) { backStackEntry ->
-//                val rencanaId = backStackEntry.arguments?.getString("rencanaId") ?: ""
-//                RincianBudgetScreen(
-//                    rencanaId = rencanaId,
-//                    onAddBudget = { navController.navigate(AppRoute.BuatBudget.createRoute(rencanaId)) },
-//                    onBack = { navController.popBackStack() }
-//                )
-//            }
-//
-//            composable(
-//                route = AppRoute.BuatBudget.route,
-//                arguments = listOf(navArgument("rencanaId") { type = NavType.StringType })
-//            ) { backStackEntry ->
-//                val rencanaId = backStackEntry.arguments?.getString("rencanaId") ?: ""
-//                BuatBudgetScreen(
-//                    rencanaId = rencanaId,
-//                    onSaveSuccess = {
-//                        navController.popBackStack()
-//                    },
-//                    onBack = { navController.popBackStack() }
-//                )
-//            }
+            composable(
+                route = AppRoute.RincianBudget.route,
+                arguments = listOf(navArgument("rencanaId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val rencanaId = backStackEntry.arguments?.getString("rencanaId") ?: ""
+                RincianBudgetScreen(
+                    rencanaId = rencanaId,
+                    onAddBudget = { navController.navigate(AppRoute.BuatBudget.createRoute(rencanaId)) },
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(
+                route = AppRoute.BuatBudget.route,
+                arguments = listOf(navArgument("rencanaId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val rencanaId = backStackEntry.arguments?.getString("rencanaId") ?: ""
+                BuatBudgetScreen(
+                    rencanaId = rencanaId,
+                    onSaveSuccess = {
+                        navController.popBackStack()
+                    },
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
 
             // Comment Routes
             composable(
