@@ -43,9 +43,7 @@ fun BuatDiaryScreen(
     val isSaving by viewModel.isSaving.collectAsState()
     val saveSuccess by viewModel.saveSuccess.collectAsState()
 
-
     val context = LocalContext.current
-
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -58,16 +56,12 @@ fun BuatDiaryScreen(
         }
     }
 
-
     LaunchedEffect(saveSuccess) {
         if (saveSuccess) {
             onNavigateBack()
             viewModel.resetSaveSuccess()
         }
     }
-
-
-
 
     Scaffold(
         topBar = {
@@ -174,13 +168,7 @@ fun BuatDiaryScreen(
                 )
             }
 
-
-
-
             Spacer(modifier = Modifier.height(16.dp))
-
-
-
 
             // Content Input
             OutlinedTextField(
@@ -196,9 +184,6 @@ fun BuatDiaryScreen(
     }
 }
 
-
-
-
 @Composable
 fun ColorPicker(
     selectedColor: String,
@@ -213,8 +198,6 @@ fun ColorPicker(
         "#00FF00" to Color.Green,
         "#FF6347" to Color(0xFFFF6347)
     )
-
-
 
 
     LazyRow(

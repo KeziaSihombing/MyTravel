@@ -45,7 +45,7 @@ object DiaryMapper {
                 SupabaseHolder.client
                     .storage
                     .from("diary-images")
-                    .publicUrl(path)   // 🔥 INI YANG PENTING
+                    .publicUrl(path)
             },
             color = dto.color,
             createdAt = createdAtInstant,

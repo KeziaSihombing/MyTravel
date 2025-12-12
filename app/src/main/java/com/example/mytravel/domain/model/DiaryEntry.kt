@@ -14,8 +14,6 @@ data class DiaryEntryDto(
     val updated_at: String? = null
 )
 
-
-// Domain Model untuk digunakan di aplikasi
 data class DiaryEntry(
     val id: Int? = null,
     val title: String,

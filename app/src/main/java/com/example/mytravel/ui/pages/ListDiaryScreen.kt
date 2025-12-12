@@ -1,8 +1,5 @@
 package com.example.mytravel.ui.pages
 
-
-
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -27,7 +24,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.mytravel.ui.viewmodel.ListDiaryViewModel
 import com.example.mytravel.domain.model.DiaryEntry
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -109,9 +105,6 @@ fun ListDiaryScreen(
     }
 }
 
-
-
-
 @Composable
 fun DiaryCard(
     diary: DiaryEntry,
@@ -119,8 +112,6 @@ fun DiaryCard(
     onClick: (id: Int) -> Unit,
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
-
-
 
 
     Card(
@@ -161,8 +152,6 @@ fun DiaryCard(
                 }
 
 
-
-
                 // Title
                 Text(
                     text = diary.title,
@@ -173,11 +162,7 @@ fun DiaryCard(
                 )
 
 
-
-
                 Spacer(modifier = Modifier.height(4.dp))
-
-
 
 
                 // Content
@@ -188,8 +173,6 @@ fun DiaryCard(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-
-
 
 
             // Delete button
@@ -207,8 +190,6 @@ fun DiaryCard(
             }
         }
     }
-
-
 
 
     if (showDeleteDialog) {

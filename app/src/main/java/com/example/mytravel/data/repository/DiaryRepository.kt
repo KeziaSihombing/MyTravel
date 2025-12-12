@@ -8,6 +8,7 @@ import com.example.mytravel.domain.mapper.DiaryMapper
 import com.example.mytravel.domain.model.CommentDto
 import com.example.mytravel.domain.model.DiaryEntry
 import com.example.mytravel.domain.model.DiaryEntryDto
+import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Order
@@ -25,7 +26,7 @@ class DiaryRepository {
 
     private fun resolveImageUrl(path: String?): String? {
         if (path == null) return null
-        return storage.publicUrl(path) // atau signed URL kalau private
+        return storage.publicUrl(path)
     }
 
     suspend fun uploadImage(bytes: ByteArray, uid: String): String {
@@ -50,14 +51,21 @@ class DiaryRepository {
     }
 
     suspend fun getAllDiaries(): List<DiaryEntry> {
+        val userId = SupabaseHolder.client.auth.currentUserOrNull()?.id
+            ?: return emptyList()   // kalau belum login
+
         val response = postgrest["diary_entries"].select {
+            filter {
+                eq("user_id", userId)
+            }
             order("created_at", Order.DESCENDING)
         }
+
         Log.d("GET_ALL_DIARIES", "raw=" + (response.data ?: "null"))
+
         val list = response.decodeList<DiaryEntryDto>()
         return DiaryMapper.mapList(list)
     }
-
 
     suspend fun getDiaryById(id: Int): DiaryEntry? {
         return try {
@@ -77,8 +85,6 @@ class DiaryRepository {
             null
         }
     }
-
-
 
     suspend fun deleteDiary(id: Int): Boolean {
         return try {
