@@ -34,9 +34,11 @@ class BudgetViewModel(
     private val _addBudgetResult = MutableStateFlow<UiResult<Unit>?>(null)
     val addBudgetResult: StateFlow<UiResult<Unit>?> = _addBudgetResult
 
-    // --- STATE YANG HILANG DITAMBAHKAN DI SINI ---
     private val _updateBudgetResult = MutableStateFlow<UiResult<Unit>?>(null)
     val updateBudgetResult: StateFlow<UiResult<Unit>?> = _updateBudgetResult
+
+    private val _deleteBudgetResult = MutableStateFlow<UiResult<Unit>?>(null)
+    val deleteBudgetResult: StateFlow<UiResult<Unit>?> = _deleteBudgetResult
 
     init {
         listenToAllBudgetChanges()
@@ -137,11 +139,17 @@ class BudgetViewModel(
 
     fun deleteBudget(budgetId: Long) {
         viewModelScope.launch {
+            _deleteBudgetResult.value = UiResult.Loading
             try {
                 budgetRepository.deleteBudget(budgetId)
+                _deleteBudgetResult.value = UiResult.Success(Unit)
             } catch (e: Exception) {
-
+                _deleteBudgetResult.value = UiResult.Error(e.message ?: "Gagal menghapus budget")
             }
         }
+    }
+    
+    fun resetDeleteBudgetResult() {
+        _deleteBudgetResult.value = null
     }
 }
