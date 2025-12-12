@@ -84,12 +84,10 @@ fun AppNavigation(
                 val profile = (profileState as UiResult.Success<List<Profile>>).data.first()
 
                 if (profile.name == "Default Name") {
-                    profileViewModel.firstTimeHandled = true
                     navController.navigate(AppRoute.AddFirstProfile.build(profile.id)) {
                         popUpTo(0) { inclusive = true }
                     }
                 } else {
-                    profileViewModel.firstTimeHandled = true
                     navController.navigate(AppRoute.Home.route) {
                         popUpTo(0) { inclusive = true }
                     }
