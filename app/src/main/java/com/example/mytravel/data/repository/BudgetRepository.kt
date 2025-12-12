@@ -22,9 +22,16 @@ class BudgetRepository {
         return SupabaseHolder.client.postgrest["rencana"].select().decodeList()
     }
 
-    // Fungsi baru untuk mengambil SEMUA item budget
     suspend fun fetchAllBudgets(): List<Budget> {
         return SupabaseHolder.client.postgrest["budget"].select().decodeList()
+    }
+
+    suspend fun getBudgetById(budgetId: Long): Budget? {
+        return SupabaseHolder.client.postgrest["budget"].select {
+            filter {
+                eq("id", budgetId)
+            }
+        }.decodeSingleOrNull()
     }
 
     suspend fun fetchBudgetsForRencana(rencanaId: Long): List<Budget> {
@@ -48,13 +55,14 @@ class BudgetRepository {
             }
     }
 
-    // Listener baru untuk semua perubahan di tabel budget
     fun listenToAnyBudgetChange(): Flow<Unit> {
         return SupabaseHolder.client.realtime
             .channel("public:budget")
             .postgresChangeFlow<PostgresAction>(schema = "public") {
                 table = "budget"
-            }.map { } // Hanya sebagai sinyal, tidak perlu data
+            }
+            .map { }
+            .onStart { emit(Unit) } 
     }
 
     suspend fun addBudgetToRencana(rencanaId: Long, title: String, nominal: Double, attachment: File?): Budget {
@@ -77,5 +85,24 @@ class BudgetRepository {
         )
 
         return SupabaseHolder.client.postgrest["budget"].insert(newBudget) { select() }.decodeSingle<Budget>()
+    }
+    
+    suspend fun updateBudget(budgetId: Long, title: String, nominal: Double) {
+        SupabaseHolder.client.postgrest["budget"].update({
+            set("title", title)
+            set("nominal", nominal)
+        }) {
+            filter {
+                eq("id", budgetId)
+            }
+        }
+    }
+
+    suspend fun deleteBudget(budgetId: Long) {
+        SupabaseHolder.client.postgrest["budget"].delete {
+            filter {
+                eq("id", budgetId)
+            }
+        }
     }
 }

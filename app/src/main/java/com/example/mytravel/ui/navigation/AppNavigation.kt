@@ -27,6 +27,7 @@ import com.example.mytravel.ui.pages.DestinationDetailScreen
 import com.example.mytravel.ui.pages.DestinationListScreen
 import com.example.mytravel.ui.pages.DetailDiaryScreen
 import com.example.mytravel.ui.pages.DetailReviewScreen
+import com.example.mytravel.ui.pages.EditBudgetScreen // Import baru
 import com.example.mytravel.ui.pages.EditProfileScreen
 import com.example.mytravel.ui.pages.FormReviewScreen
 import com.example.mytravel.ui.pages.HomeScreen
@@ -101,8 +102,9 @@ fun AppNavigation(
         AppRoute.ListComment.route,
         AppRoute.CommentDetail.route,
         AppRoute.AddFirstProfile.route,
-        AppRoute.RincianBudget.route, // Hide navbar on RincianBudget
-        AppRoute.BuatBudget.route,   // Hide navbar on BuatBudget
+        AppRoute.RincianBudget.route, 
+        AppRoute.BuatBudget.route,   
+        AppRoute.EditBudget.route,
         AppRoute.DetailDiary.route
     )
 
@@ -177,6 +179,7 @@ fun AppNavigation(
                 RincianBudgetScreen(
                     rencanaId = rencanaId,
                     onAddBudget = { navController.navigate(AppRoute.BuatBudget.createRoute(rencanaId)) },
+                    onEditBudget = { budgetId -> navController.navigate(AppRoute.EditBudget.createRoute(budgetId)) }, // Navigasi ke edit
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
@@ -191,6 +194,18 @@ fun AppNavigation(
                     onSaveSuccess = {
                         navController.popBackStack()
                     },
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(
+                route = AppRoute.EditBudget.route,
+                arguments = listOf(navArgument("budgetId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val budgetId = backStackEntry.arguments?.getLong("budgetId") ?: 0L
+                EditBudgetScreen(
+                    budgetId = budgetId,
+                    onSaveSuccess = { navController.popBackStack() },
                     onNavigateBack = { navController.popBackStack() }
                 )
             }

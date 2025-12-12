@@ -14,6 +14,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,13 +47,13 @@ import java.util.Locale
 fun RincianBudgetScreen(
     rencanaId: String,
     onAddBudget: (String) -> Unit,
+    onEditBudget: (Long) -> Unit, // Parameter baru untuk navigasi edit
     onNavigateBack: () -> Unit,
     budgetViewModel: BudgetViewModel = viewModel()
 ) {
     val id = rencanaId.toLongOrNull()
     val budgetItemsState by budgetViewModel.budgetItems.collectAsState()
 
-    // Listen for real-time updates
     LaunchedEffect(id) {
         id?.let {
             budgetViewModel.listenForBudgetUpdates(it)
@@ -125,7 +127,11 @@ fun RincianBudgetScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             items(result.data) { budget ->
-                                BudgetItemRow(budget = budget)
+                                BudgetItemRow(
+                                    budget = budget,
+                                    onEditClick = { onEditBudget(budget.id ?: 0L) },
+                                    onDeleteClick = { budgetViewModel.deleteBudget(budget.id ?: 0L) }
+                                )
                             }
                         }
                     }
@@ -142,12 +148,30 @@ fun RincianBudgetScreen(
 }
 
 @Composable
-fun BudgetItemRow(budget: Budget) {
+fun BudgetItemRow(
+    budget: Budget,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit
+) {
     val formatter = NumberFormat.getNumberInstance(Locale("in", "ID"))
     val formattedNominal = formatter.format(budget.nominal)
 
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(text = budget.title)
-        Text(text = "Rp. $formattedNominal")
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column {
+            Text(text = budget.title)
+            Text(text = "Rp. $formattedNominal")
+        }
+        Row {
+            IconButton(onClick = onEditClick) {
+                Icon(Icons.Default.Edit, contentDescription = "Edit")
+            }
+            IconButton(onClick = onDeleteClick) {
+                Icon(Icons.Default.Delete, contentDescription = "Delete")
+            }
+        }
     }
 }

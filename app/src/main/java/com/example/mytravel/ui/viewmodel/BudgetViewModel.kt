@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.io.File
 
-// Data class baru untuk menggabungkan Rencana dengan totalnya
 data class RencanaWithTotal(
     val rencana: Rencana,
     val total: Double
@@ -23,43 +22,42 @@ class BudgetViewModel(
     private val budgetRepository: BudgetRepository = BudgetRepository()
 ) : ViewModel() {
 
-    // StateFlow untuk daftar rencana dengan totalnya
     private val _rencanaWithTotals = MutableStateFlow<UiResult<List<RencanaWithTotal>>>(UiResult.Loading)
     val rencanaWithTotals: StateFlow<UiResult<List<RencanaWithTotal>>> = _rencanaWithTotals
 
-    // StateFlow untuk item budget di layar rincian
     private val _budgetItems = MutableStateFlow<UiResult<List<Budget>>>(UiResult.Loading)
     val budgetItems: StateFlow<UiResult<List<Budget>>> = _budgetItems
 
-    // StateFlow untuk hasil penambahan budget
+    private val _budgetToEdit = MutableStateFlow<UiResult<Budget?>>(UiResult.Loading)
+    val budgetToEdit: StateFlow<UiResult<Budget?>> = _budgetToEdit
+
     private val _addBudgetResult = MutableStateFlow<UiResult<Unit>?>(null)
     val addBudgetResult: StateFlow<UiResult<Unit>?> = _addBudgetResult
 
+    // --- STATE YANG HILANG DITAMBAHKAN DI SINI ---
+    private val _updateBudgetResult = MutableStateFlow<UiResult<Unit>?>(null)
+    val updateBudgetResult: StateFlow<UiResult<Unit>?> = _updateBudgetResult
+
     init {
-        // Mulai mendengarkan semua perubahan budget saat ViewModel dibuat
         listenToAllBudgetChanges()
     }
 
-    // Fungsi baru untuk mendengarkan SEMUA perubahan di tabel budget
     private fun listenToAllBudgetChanges() {
         viewModelScope.launch {
-            budgetRepository.listenToAnyBudgetChange().collect {
+            budgetRepository.listenToAnyBudgetChange().collect { 
                 _updateRencanaTotals()
             }
         }
     }
 
-    // Fungsi internal untuk mengambil semua data dan menghitung total
     private suspend fun _updateRencanaTotals() {
         _rencanaWithTotals.value = UiResult.Loading
         try {
             val allRencana = budgetRepository.fetchAllRencana()
             val allBudgets = budgetRepository.fetchAllBudgets()
 
-            // Kelompokkan budget berdasarkan rencana_id
             val budgetsByRencanaId = allBudgets.groupBy { it.rencanaId }
 
-            // Buat daftar RencanaWithTotal
             val result = allRencana.map { rencana ->
                 val total = budgetsByRencanaId[rencana.id]?.sumOf { it.nominal } ?: 0.0
                 RencanaWithTotal(rencana, total)
@@ -70,18 +68,28 @@ class BudgetViewModel(
         }
     }
 
-    // Fungsi ini dipanggil dari ListBudgetScreen saat pertama kali dibuka
     fun loadInitialData() {
-        viewModelScope.launch {
+        viewModelScope.launch { 
             _updateRencanaTotals()
+        }
+    }
+
+    fun getBudgetDetails(budgetId: Long) {
+        viewModelScope.launch {
+            _budgetToEdit.value = UiResult.Loading
+            try {
+                val budget = budgetRepository.getBudgetById(budgetId)
+                _budgetToEdit.value = UiResult.Success(budget)
+            } catch (e: Exception) {
+                _budgetToEdit.value = UiResult.Error(e.message ?: "Gagal memuat detail budget")
+            }
         }
     }
 
     fun listenForBudgetUpdates(rencanaId: Long) {
         viewModelScope.launch {
-            _budgetItems.value = UiResult.Loading
             budgetRepository.listenToBudgetChanges(rencanaId)
-                .catch { e ->
+                .catch { e -> 
                     _budgetItems.value = UiResult.Error(e.message ?: "Gagal mendengarkan perubahan")
                 }
                 .collect { budgetList ->
@@ -109,5 +117,31 @@ class BudgetViewModel(
 
     fun resetAddBudgetResult() {
         _addBudgetResult.value = null
+    }
+    
+    fun updateBudget(budgetId: Long, title: String, nominal: Double) {
+        viewModelScope.launch {
+            _updateBudgetResult.value = UiResult.Loading
+            try {
+                budgetRepository.updateBudget(budgetId, title, nominal)
+                _updateBudgetResult.value = UiResult.Success(Unit)
+            } catch (e: Exception) {
+                _updateBudgetResult.value = UiResult.Error(e.message ?: "Gagal menyimpan perubahan")
+            }
+        }
+    }
+
+    fun resetUpdateBudgetResult() {
+        _updateBudgetResult.value = null
+    }
+
+    fun deleteBudget(budgetId: Long) {
+        viewModelScope.launch {
+            try {
+                budgetRepository.deleteBudget(budgetId)
+            } catch (e: Exception) {
+
+            }
+        }
     }
 }

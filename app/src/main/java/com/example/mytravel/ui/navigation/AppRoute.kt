@@ -20,6 +20,11 @@ sealed class AppRoute(val route: String) {
         fun createRoute(rencanaId: String) = "buatBudget/$rencanaId"
     }
 
+    object EditBudget : AppRoute("editBudget/{budgetId}") {
+        fun createRoute(budgetId: Long) = "editBudget/$budgetId"
+    }
+
+
     // Screen lainnya
     object AddFirstProfile : AppRoute("addFirstProfile/{userId}"){
         fun build(id: String) = "addFirstProfile/$id"
